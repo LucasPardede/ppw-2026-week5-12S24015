@@ -1,0 +1,63 @@
+/* SIPUS-Del Custom Theme & Styles */
+:root {
+    --del-purple: #4C1D95;
+    --del-purple-hover: #3B0764;
+    --del-purple-light: #F3E8FF;
+    --del-purple-subtle: #7C3AED;
+}
+
+.bg-del {
+    background-color: var(--del-purple) !important;
+}
+
+.text-del {
+    color: var(--del-purple) !important;
+}
+
+.border-del {
+    border-color: var(--del-purple) !important;
+}
+
+.navbar-del {
+    background-color: var(--del-purple) !important;
+}
+
+.btn-del {
+    background-color: var(--del-purple) !important;
+    color: #ffffff !important;
+    border-color: var(--del-purple) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-del:hover {
+    background-color: var(--del-purple-hover) !important;
+    border-color: var(--del-purple-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-del {
+    background-color: transparent !important;
+    color: var(--del-purple) !important;
+    border-color: var(--del-purple) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-del:hover {
+    background-color: var(--del-purple) !important;
+    color: #ffffff !important;
+}
+
+.badge-del {
+    background-color: var(--del-purple-light) !important;
+    color: var(--del-purple) !important;
+    font-weight: 600;
+}
+
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(76, 29, 149, 0.12) !important;
+}
