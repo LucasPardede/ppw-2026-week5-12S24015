@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Buku;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
+use App\Models\Pengumuman;
 use App\Models\User;
 use Illuminate\View\View;
 
@@ -59,6 +60,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // 4 Pengumuman terbaru
+        $totalPengumuman = Pengumuman::count();
+        $pengumumanTerbaru = Pengumuman::with('author')->latest()->take(4)->get();
+
         return view('admin.dashboard', compact(
             'totalBuku',
             'totalKategori',
@@ -68,7 +73,9 @@ class DashboardController extends Controller
             'dendaBelumLunas',
             'bukuPopuler',
             'stokMenipis',
-            'peminjamanTerbaru'
+            'peminjamanTerbaru',
+            'totalPengumuman',
+            'pengumumanTerbaru'
         ));
     }
 }

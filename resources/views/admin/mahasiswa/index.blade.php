@@ -1,9 +1,17 @@
 <x-layout title="Data Mahasiswa Peminjam — SIPUS-Del Admin">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Data Mahasiswa</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-people text-del me-2"></i>Data Mahasiswa & Pengguna
-            </h2>
+            <h1 class="fw-bold mb-1 text-dark fs-3">
+                <i class="bi bi-people text-del me-2" aria-hidden="true"></i>Data Mahasiswa & Pengguna
+            </h1>
             <p class="text-muted mb-0 small">Pantau keaktifan peminjaman, status tunggakan denda, dan riwayat sirkulasi mahasiswa.</p>
         </div>
     </div>
@@ -15,24 +23,25 @@
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted border-end-0">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search" aria-hidden="true"></i>
                         </span>
                         <input type="text" 
                                name="search" 
                                value="{{ request('search') }}" 
                                class="form-control border-start-0 ps-0" 
-                               placeholder="Cari berdasarkan nama, NIM, atau email mahasiswa...">
+                               placeholder="Cari berdasarkan nama, NIM, atau email mahasiswa..."
+                               aria-label="Cari mahasiswa">
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-del w-100">
-                        <i class="bi bi-search me-1"></i> Cari Data
+                    <button type="submit" class="btn btn-del rounded-pill w-100">
+                        <i class="bi bi-search me-1" aria-hidden="true"></i> Cari Data
                     </button>
                 </div>
                 @if(request('search'))
                     <div class="col-md-3">
-                        <a href="{{ route('admin.mahasiswa.index') }}" class="btn btn-outline-secondary w-100">
-                            Reset Pencarian
+                        <a href="{{ route('admin.mahasiswa.index') }}" class="btn btn-outline-secondary rounded-pill w-100">
+                            <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i> Reset Pencarian
                         </a>
                     </div>
                 @endif
@@ -42,10 +51,13 @@
 
     {{-- Tabel Mahasiswa --}}
     <div class="card card-del border-0 shadow-sm overflow-hidden">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-person-lines-fill me-2"></i>Daftar Mahasiswa ({{ $mahasiswas->total() }} Mahasiswa)
-            </h5>
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-person-lines-fill me-2" aria-hidden="true"></i>Daftar Mahasiswa Terdaftar
+            </h2>
+            <span class="badge badge-del px-3 py-2 rounded-pill" style="font-size: 0.72rem;">
+                <i class="bi bi-people me-1"></i>{{ $mahasiswas->total() }} mahasiswa
+            </span>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

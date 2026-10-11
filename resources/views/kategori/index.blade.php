@@ -1,23 +1,34 @@
 <x-layout title="Kelola Kategori Koleksi — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Kelola Kategori</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-tags text-del me-2"></i>Kategori Koleksi Buku
-            </h2>
+            <h1 class="fw-bold mb-1 text-dark fs-3">
+                <i class="bi bi-tags text-del me-2" aria-hidden="true"></i>Kategori Koleksi Buku
+            </h1>
             <p class="text-muted mb-0 small">Kelola klasifikasi dan pengelompokan buku perpustakaan Institut Teknologi Del.</p>
         </div>
         <div>
             <a href="{{ route('kategori.create') }}" class="btn btn-del rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-circle me-1"></i> Tambah Kategori Baru
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Tambah Kategori Baru
             </a>
         </div>
     </div>
 
     <div class="card card-del border-0 shadow-sm overflow-hidden">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-list-ul me-2"></i>Daftar Seluruh Kategori ({{ $kategoris->total() }} Data)
-            </h5>
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-list-ul me-2" aria-hidden="true"></i>Daftar Seluruh Kategori
+            </h2>
+            <span class="badge badge-del px-3 py-2 rounded-pill" style="font-size: 0.72rem;">
+                <i class="bi bi-folder2-open me-1"></i>{{ $kategoris->total() }} kategori terdaftar
+            </span>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -46,24 +57,31 @@
                             </td>
                             <td class="text-center">
                                 <span class="badge bg-light text-dark border px-3 py-1 rounded-pill">
-                                    <i class="bi bi-book me-1 text-del"></i> {{ $kategori->bukus_count }} Judul
+                                    <i class="bi bi-book me-1 text-del" aria-hidden="true"></i> {{ $kategori->bukus_count }} Judul
                                 </span>
                             </td>
                             <td class="text-end pe-4">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ route('kategori.show', $kategori) }}" class="btn btn-outline-secondary" title="Lihat Detail & Buku">
-                                        <i class="bi bi-eye"></i>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Aksi kategori {{ $kategori->nama_kategori }}">
+                                    <a href="{{ route('kategori.show', $kategori) }}" class="btn btn-outline-secondary" title="Lihat Detail & Buku" aria-label="Detail kategori {{ $kategori->nama_kategori }}">
+                                        <i class="bi bi-eye" aria-hidden="true"></i>
                                     </a>
-                                    <a href="{{ route('kategori.edit', $kategori) }}" class="btn btn-outline-primary" title="Ubah Kategori">
-                                        <i class="bi bi-pencil-square"></i>
+                                    <a href="{{ route('kategori.edit', $kategori) }}" class="btn btn-outline-primary" title="Ubah Kategori" aria-label="Edit kategori {{ $kategori->nama_kategori }}">
+                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                     </a>
-                                    <form action="{{ route('kategori.destroy', $kategori) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori \'{{ $kategori->nama_kategori }}\'?')">
+                                    <form action="{{ route('kategori.destroy', $kategori) }}" method="POST" class="d-inline" id="deleteKategoriForm{{ $kategori->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger" title="Hapus Kategori">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </form>
+                                    <button type="button"
+                                            class="btn btn-outline-danger"
+                                            title="Hapus Kategori"
+                                            aria-label="Hapus kategori {{ $kategori->nama_kategori }}"
+                                            data-delete-trigger
+                                            data-delete-form="deleteKategoriForm{{ $kategori->id }}"
+                                            data-delete-title="{{ $kategori->nama_kategori }}"
+                                            data-delete-subtext="Kategori yang masih memiliki relasi buku <strong>tidak dapat dihapus</strong>.">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -71,10 +89,10 @@
                         <tr>
                             <td colspan="5" class="text-center py-5">
                                 <div class="text-muted">
-                                    <i class="bi bi-folder-x fs-1 d-block mb-2 text-secondary"></i>
+                                    <i class="bi bi-folder-x fs-1 d-block mb-2 text-secondary" aria-hidden="true"></i>
                                     <p class="mb-2 fw-semibold">Belum ada data kategori yang terdaftar.</p>
                                     <a href="{{ route('kategori.create') }}" class="btn btn-del btn-sm rounded-pill">
-                                        <i class="bi bi-plus-lg me-1"></i> Tambah Sekarang
+                                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Tambah Sekarang
                                     </a>
                                 </div>
                             </td>

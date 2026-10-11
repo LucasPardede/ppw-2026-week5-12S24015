@@ -1,18 +1,27 @@
 <x-layout title="Detail Buku: {{ $buku->judul }} — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('buku.index') }}">Kelola Buku</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($buku->judul, 35) }}</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge badge-del px-2 py-1">{{ $buku->kategori->nama_kategori ?? 'Umum' }}</span>
+                <span class="badge badge-del px-2 py-1 font-monospace">{{ $buku->kategori->nama_kategori ?? 'Umum' }}</span>
                 <span class="text-muted small">ISBN: <code>{{ $buku->isbn }}</code></span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">{{ $buku->judul }}</h3>
+            <h1 class="fw-bold mb-0 text-dark fs-3">{{ $buku->judul }}</h1>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('buku.edit', $buku) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-pencil me-1"></i> Ubah Data
+                <i class="bi bi-pencil me-1" aria-hidden="true"></i> Ubah Data
             </a>
             <a href="{{ route('buku.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Kembali ke Daftar
             </a>
         </div>
     </div>

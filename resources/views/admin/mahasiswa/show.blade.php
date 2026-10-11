@@ -1,15 +1,24 @@
 <x-layout title="Riwayat Mahasiswa: {{ $user->name }} — SIPUS-Del Admin">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('admin.mahasiswa.index') }}">Data Mahasiswa</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ $user->name }}</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
                 <span class="badge badge-del px-2 py-1 font-monospace">{{ $user->nim ?? 'NIM -' }}</span>
-                <h3 class="fw-bold mb-0 text-dark">{{ $user->name }}</h3>
+                <h1 class="fw-bold mb-0 text-dark fs-3">{{ $user->name }}</h1>
             </div>
             <p class="text-muted small mb-0">{{ $user->email }} • Riwayat aktivitas transaksi perpustakaan.</p>
         </div>
         <div>
             <a href="{{ route('admin.mahasiswa.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar Mahasiswa
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Kembali ke Daftar Mahasiswa
             </a>
         </div>
     </div>

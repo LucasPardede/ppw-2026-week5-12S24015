@@ -8,6 +8,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PengumumanController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -53,6 +54,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
     // Transaksi Peminjaman Mahasiswa
     Route::get('/pinjaman', [PeminjamanController::class, 'indexMahasiswa'])->name('pinjaman.index');
     Route::patch('/pinjaman/{peminjaman}/perpanjang', [PeminjamanController::class, 'perpanjang'])->name('pinjaman.perpanjang');
+
+    // Pengumuman Perpustakaan untuk Mahasiswa
+    Route::get('/pengumuman', [PengumumanController::class, 'indexMahasiswa'])->name('pengumuman.index');
+    Route::get('/pengumuman/{pengumuman}', [PengumumanController::class, 'showMahasiswa'])->name('pengumuman.show');
 });
 
 // ==========================================
@@ -74,6 +79,16 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Pemantauan Data Mahasiswa Peminjam
     Route::get('/admin/mahasiswa', [MahasiswaController::class, 'index'])->name('admin.mahasiswa.index');
     Route::get('/admin/mahasiswa/{user}', [MahasiswaController::class, 'show'])->name('admin.mahasiswa.show');
+
+    // Manajemen Pengumuman Perpustakaan (Admin)
+    Route::get('/admin/pengumuman', [PengumumanController::class, 'indexAdmin'])->name('admin.pengumuman.index');
+    Route::get('/admin/pengumuman/create', [PengumumanController::class, 'create'])->name('admin.pengumuman.create');
+    Route::post('/admin/pengumuman', [PengumumanController::class, 'store'])->name('admin.pengumuman.store');
+    Route::get('/admin/pengumuman/{pengumuman:id}', [PengumumanController::class, 'showAdmin'])->name('admin.pengumuman.show');
+    Route::get('/admin/pengumuman/{pengumuman:id}/edit', [PengumumanController::class, 'edit'])->name('admin.pengumuman.edit');
+    Route::put('/admin/pengumuman/{pengumuman:id}', [PengumumanController::class, 'update'])->name('admin.pengumuman.update');
+    Route::delete('/admin/pengumuman/{pengumuman:id}', [PengumumanController::class, 'destroy'])->name('admin.pengumuman.destroy');
+    Route::patch('/admin/pengumuman/{pengumuman:id}/toggle-pin', [PengumumanController::class, 'togglePin'])->name('admin.pengumuman.pin');
 
     // Laporan dan Ekspor Data
     Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');

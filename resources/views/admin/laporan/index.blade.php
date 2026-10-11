@@ -1,14 +1,22 @@
 <x-layout title="Laporan Peminjaman Koleksi — SIPUS-Del Admin">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Laporan Sirkulasi</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-file-earmark-bar-graph text-del me-2"></i>Laporan Sirkulasi & Audit Denda
-            </h2>
+            <h1 class="fw-bold mb-1 text-dark fs-3">
+                <i class="bi bi-file-earmark-bar-graph text-del me-2" aria-hidden="true"></i>Laporan Sirkulasi & Audit Denda
+            </h1>
             <p class="text-muted mb-0 small">Audit transaksi peminjaman, pantau kepatuhan tenggat waktu, dan ekspor data ke format CSV.</p>
         </div>
         <div>
-            <a href="{{ route('admin.laporan.export', request()->all()) }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-                <i class="bi bi-file-earmark-excel me-1"></i> Ekspor Laporan (CSV)
+            <a href="{{ route('admin.laporan.export', request()->all()) }}" class="btn btn-success rounded-pill px-4 shadow-sm" aria-label="Ekspor Laporan dalam format CSV">
+                <i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i> Ekspor Laporan (CSV)
             </a>
         </div>
     </div>
@@ -18,16 +26,16 @@
         <div class="card-body p-4">
             <form method="GET" action="{{ route('admin.laporan.index') }}" class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-secondary">Dari Tanggal Pinjam</label>
-                    <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" class="form-control">
+                    <label for="dari_tanggal" class="form-label small fw-semibold text-secondary">Dari Tanggal Pinjam</label>
+                    <input type="date" id="dari_tanggal" name="dari_tanggal" value="{{ request('dari_tanggal') }}" class="form-control">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-secondary">Sampai Tanggal Pinjam</label>
-                    <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" class="form-control">
+                    <label for="sampai_tanggal" class="form-label small fw-semibold text-secondary">Sampai Tanggal Pinjam</label>
+                    <input type="date" id="sampai_tanggal" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" class="form-control">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-secondary">Status Peminjaman</label>
-                    <select name="status" class="form-select">
+                    <label for="status" class="form-label small fw-semibold text-secondary">Status Peminjaman</label>
+                    <select id="status" name="status" class="form-select">
                         <option value="">-- Semua Status --</option>
                         <option value="dipinjam" {{ request('status') === 'dipinjam' ? 'selected' : '' }}>Aktif / Dipinjam</option>
                         <option value="terlambat" {{ request('status') === 'terlambat' ? 'selected' : '' }}>Terlambat</option>
@@ -35,12 +43,12 @@
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-del flex-grow-1">
-                        <i class="bi bi-funnel me-1"></i> Terapkan Filter
+                    <button type="submit" class="btn btn-del rounded-pill flex-grow-1">
+                        <i class="bi bi-funnel me-1" aria-hidden="true"></i> Terapkan Filter
                     </button>
                     @if(request('dari_tanggal') || request('sampai_tanggal') || request('status'))
-                        <a href="{{ route('admin.laporan.index') }}" class="btn btn-outline-secondary" title="Reset Filter">
-                            <i class="bi bi-arrow-counterclockwise"></i>
+                        <a href="{{ route('admin.laporan.index') }}" class="btn btn-outline-secondary rounded-pill" title="Reset Filter" aria-label="Reset Filter">
+                            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
                         </a>
                     @endif
                 </div>
@@ -51,11 +59,11 @@
     {{-- Tabel Laporan --}}
     <div class="card card-del border-0 shadow-sm overflow-hidden">
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-table me-2"></i>Hasil Laporan Transaksi ({{ $peminjamans->total() }} Data)
-            </h5>
-            <span class="badge badge-del px-3 py-2 rounded-pill small">
-                Total Denda: Rp{{ number_format($totalDenda, 0, ',', '.') }}
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-table me-2" aria-hidden="true"></i>Hasil Laporan Transaksi ({{ $peminjamans->total() }} Data)
+            </h2>
+            <span class="badge badge-del px-3 py-2 rounded-pill" style="font-size: 0.72rem;">
+                <i class="bi bi-cash-stack me-1"></i>Total Denda: Rp{{ number_format($totalDenda, 0, ',', '.') }}
             </span>
         </div>
         <div class="table-responsive">

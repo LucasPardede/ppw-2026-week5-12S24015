@@ -1,14 +1,22 @@
 <x-layout title="Kelola Koleksi Buku — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Kelola Buku</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-book text-del me-2"></i>Katalog Koleksi Buku
-            </h2>
+            <h1 class="fw-bold mb-1 text-dark fs-3">
+                <i class="bi bi-book text-del me-2" aria-hidden="true"></i>Katalog Koleksi Buku
+            </h1>
             <p class="text-muted mb-0 small">Kelola seluruh buku, inventaris stok, dan pembaruan data koleksi perpustakaan.</p>
         </div>
         <div>
             <a href="{{ route('buku.create') }}" class="btn btn-del rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-circle me-1"></i> Tambah Buku Baru
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Tambah Buku Baru
             </a>
         </div>
     </div>
@@ -56,11 +64,11 @@
     {{-- Tabel Koleksi Buku --}}
     <div class="card card-del border-0 shadow-sm overflow-hidden">
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-list-columns-reverse me-2"></i>Daftar Inventaris Buku ({{ $bukus->total() }} Data)
-            </h5>
-            <span class="badge badge-del px-3 py-2 rounded-pill small">
-                Eager Loading: with('kategori')
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-list-columns-reverse me-2" aria-hidden="true"></i>Daftar Inventaris Buku
+            </h2>
+            <span class="badge badge-del px-3 py-2 rounded-pill" style="font-size: 0.72rem;">
+                <i class="bi bi-database me-1"></i>{{ $bukus->total() }} judul terdaftar
             </span>
         </div>
         <div class="table-responsive">
@@ -113,20 +121,28 @@
                                 @endif
                             </td>
                             <td class="text-end pe-4">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ route('buku.show', $buku) }}" class="btn btn-outline-secondary" title="Lihat Detail">
-                                        <i class="bi bi-eye"></i>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Aksi untuk {{ $buku->judul }}">
+                                    <a href="{{ route('buku.show', $buku) }}" class="btn btn-outline-secondary" title="Lihat Detail" aria-label="Lihat detail buku">
+                                        <i class="bi bi-eye" aria-hidden="true"></i>
                                     </a>
-                                    <a href="{{ route('buku.edit', $buku) }}" class="btn btn-outline-primary" title="Ubah Data">
-                                        <i class="bi bi-pencil-square"></i>
+                                    <a href="{{ route('buku.edit', $buku) }}" class="btn btn-outline-primary" title="Ubah Data" aria-label="Edit buku">
+                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                     </a>
-                                    <form action="{{ route('buku.destroy', $buku) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus buku \'{{ $buku->judul }}\'?')">
+                                    {{-- Form dihapus, trigger modal --}}
+                                    <form action="{{ route('buku.destroy', $buku) }}" method="POST" class="d-inline" id="deleteBookForm{{ $buku->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger" title="Hapus Buku">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </form>
+                                    <button type="button"
+                                            class="btn btn-outline-danger"
+                                            title="Hapus Buku"
+                                            aria-label="Hapus buku {{ $buku->judul }}"
+                                            data-delete-trigger
+                                            data-delete-form="deleteBookForm{{ $buku->id }}"
+                                            data-delete-title="{{ $buku->judul }}"
+                                            data-delete-subtext="Buku yang masih memiliki riwayat peminjaman <strong>tidak dapat dihapus</strong>.">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>

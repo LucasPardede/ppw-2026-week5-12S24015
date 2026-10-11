@@ -1,13 +1,24 @@
 <x-layout title="Tambah Buku Baru — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('buku.index') }}">Kelola Buku</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tambah Buku</li>
+        </ol>
+    </nav>
+
     <div class="row justify-content-center">
         <div class="col-lg-9">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div>
-                    <h3 class="fw-bold mb-1 text-dark">Tambah Buku Baru</h3>
+                    <h1 class="fw-bold mb-1 text-dark fs-3">
+                        <i class="bi bi-journal-plus text-del me-2" aria-hidden="true"></i>Tambah Buku Baru
+                    </h1>
                     <p class="text-muted small mb-0">Lengkapi formulir di bawah ini untuk mendaftarkan koleksi buku baru ke sistem.</p>
                 </div>
                 <a href="{{ route('buku.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+                    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Kembali ke Daftar
                 </a>
             </div>
 
@@ -161,9 +172,9 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 pt-4 mt-4 border-top">
-                            <a href="{{ route('buku.index') }}" class="btn btn-light px-4">Batal</a>
-                            <button type="submit" class="btn btn-del px-4 shadow-sm">
-                                <i class="bi bi-save me-1"></i> Simpan Koleksi Buku
+                            <a href="{{ route('buku.index') }}" class="btn btn-light rounded-pill px-4">Batal</a>
+                            <button type="submit" class="btn btn-del rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-save me-1" aria-hidden="true"></i> Simpan Koleksi Buku
                             </button>
                         </div>
                     </form>

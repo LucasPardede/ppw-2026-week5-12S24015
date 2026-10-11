@@ -180,6 +180,17 @@ Sesuai instruksi Modul Praktikum Hal. 2, 5, dan 7, seluruh 7 aksi baku CRUD dida
 | `GET` | `/admin/mahasiswa/{user}` | `admin.mahasiswa.show` | `MahasiswaController@show` | Riwayat transaksi per mahasiswa |
 | `GET` | `/admin/laporan` | `admin.laporan.index` | `LaporanController@index` | Laporan sirkulasi berfilter tanggal/status |
 | `GET` | `/admin/laporan/export` | `admin.laporan.export` | `LaporanController@exportCsv` | Ekspor laporan sirkulasi ke berkas CSV |
+| **Pengumuman Perpustakaan** | | | | |
+| `GET` | `/pengumuman` | `pengumuman.index` | `PengumumanController@indexMahasiswa`| Daftar pengumuman aktif portal mahasiswa |
+| `GET` | `/pengumuman/{pengumuman}` | `pengumuman.show` | `PengumumanController@showMahasiswa` | Detail pengumuman portal mahasiswa |
+| `GET` | `/admin/pengumuman` | `admin.pengumuman.index` | `PengumumanController@indexAdmin` | Manajemen pengumuman administrator |
+| `GET` | `/admin/pengumuman/create`| `admin.pengumuman.create` | `PengumumanController@create` | Form tambah pengumuman |
+| `POST` | `/admin/pengumuman` | `admin.pengumuman.store` | `PengumumanController@store` | Simpan pengumuman baru |
+| `GET` | `/admin/pengumuman/{pengumuman}` | `admin.pengumuman.show` | `PengumumanController@showAdmin` | Detail pengumuman administrator |
+| `GET` | `/admin/pengumuman/{pengumuman}/edit`| `admin.pengumuman.edit` | `PengumumanController@edit` | Form edit pengumuman |
+| `PUT` | `/admin/pengumuman/{pengumuman}` | `admin.pengumuman.update` | `PengumumanController@update` | Perbarui pengumuman |
+| `DELETE`| `/admin/pengumuman/{pengumuman}`| `admin.pengumuman.destroy`| `PengumumanController@destroy`| Hapus pengumuman |
+| `PATCH` | `/admin/pengumuman/{pengumuman}/toggle-pin`| `admin.pengumuman.pin`| `PengumumanController@togglePin`| Sematkan/lepas pin pengumuman |
 
 ---
 
@@ -241,24 +252,49 @@ Kueri SQL yang dieksekusi **tetap konstan (tepat 2 kueri data)** terlepas dari b
 
 ## 8. Hasil Pengujian Otomatis (PHPUnit Feature Tests)
 
-Seluruh skenario pengujian fungsional dan aturan bisnis (UAT-01 s/d UAT-13) diuji secara otomatis melalui test suite `tests/Feature/SipusDelTest.php`:
+Seluruh skenario pengujian fungsional dan aturan bisnis diuji secara otomatis melalui test suite `tests/Feature/SipusDelTest.php` dan `tests/Feature/PengumumanTest.php`:
 
 ```bash
-php vendor/phpunit/phpunit/phpunit
+php artisan test
 ```
 
 **Keluaran Uji (Test Results):**
 ```
-PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
 
-Runtime:       PHP 8.5.11
-Configuration: C:\laragon\www\ppw-2026-week5-12S24015\phpunit.xml
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response
 
-................                                                  16 / 16 (100%)
+   PASS  Tests\Feature\PengumumanTest
+  ✓ mahasiswa can view active announcements
+  ✓ mahasiswa can view announcement detail
+  ✓ mahasiswa cannot view inactive announcement
+  ✓ mahasiswa forbidden from admin announcement routes
+  ✓ admin can view announcement management index
+  ✓ admin can create new announcement
+  ✓ admin can update announcement
+  ✓ admin can delete announcement
+  ✓ admin can toggle pin announcement
 
-Time: 00:01.152, Memory: 54.00 MB
+   PASS  Tests\Feature\SipusDelTest
+  ✓ login mahasiswa simulasi berhasil ke katalog
+  ✓ login admin password salah ditolak
+  ✓ login admin password benar masuk ke dashboard
+  ✓ mahasiswa dilarang mengakses panel admin 403
+  ✓ admin bisa menambah kategori
+  ✓ kode kategori duplikat ditolak
+  ✓ kategori tidak bisa dihapus jika masih memiliki buku
+  ✓ tambah buku validasi judul minimal 5 karakter
+  ✓ admin bisa tambah buku berhasil
+  ✓ buku tidak bisa dihapus jika memiliki riwayat peminjaman
+  ✓ mahasiswa meminjam buku mengurangi stok
+  ✓ mahasiswa tidak bisa meminjam buku yang sama dua kali bersamaan
+  ✓ perpanjangan buku maksimal 1 kali
+  ✓ admin mencatat pengembalian dan stok bertambah
 
-OK (16 tests, 47 assertions)
+  Tests:    25 passed (70 assertions)
+  Duration: 3.76s
 ```
 
 Daftar aspek yang teruji dan lolos otomatis:
@@ -276,6 +312,7 @@ Daftar aspek yang teruji dan lolos otomatis:
 12. `test_mahasiswa_tidak_bisa_meminjam_buku_yang_sama_dua_kali_bersamaan` (Aturan Bisnis Peminjaman)
 13. `test_perpanjangan_buku_maksimal_1_kali` (Aturan Perpanjangan 7 Hari)
 14. `test_admin_mencatat_pengembalian_dan_stok_bertambah` (Perhitungan Denda Otomatis & Penambahan Stok)
+15. `test_pengumuman_suite` (9 skenario lengkap CRUD & otorisasi pengumuman mahasiswa & admin)
 
 ---
 

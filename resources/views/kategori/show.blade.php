@@ -1,29 +1,38 @@
 <x-layout title="Detail Kategori: {{ $kategori->nama_kategori }} — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('kategori.index') }}">Kelola Kategori</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ $kategori->nama_kategori }}</li>
+        </ol>
+    </nav>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
                 <span class="badge badge-del px-2 py-1 font-monospace">{{ $kategori->kode_kategori }}</span>
-                <h3 class="fw-bold mb-0 text-dark">{{ $kategori->nama_kategori }}</h3>
+                <h1 class="fw-bold mb-0 text-dark fs-3">{{ $kategori->nama_kategori }}</h1>
             </div>
             <p class="text-muted small mb-0">Rincian kategori koleksi dan buku yang terdaftar di dalamnya.</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('kategori.edit', $kategori) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-pencil me-1"></i> Ubah
+                <i class="bi bi-pencil me-1" aria-hidden="true"></i> Ubah Kategori
             </a>
             <a href="{{ route('kategori.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Kembali ke Daftar
             </a>
         </div>
     </div>
 
     <div class="card card-del border-0 shadow-sm mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-book me-2"></i>Buku dalam Kategori Ini ({{ $kategori->bukus->count() }} Judul)
-            </h5>
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-book me-2" aria-hidden="true"></i>Buku dalam Kategori Ini ({{ $kategori->bukus->count() }} Judul)
+            </h2>
             <a href="{{ route('buku.create') }}" class="btn btn-del btn-sm rounded-pill px-3">
-                <i class="bi bi-plus-lg me-1"></i> Tambah Buku Baru
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Tambah Buku Baru
             </a>
         </div>
         <div class="table-responsive">

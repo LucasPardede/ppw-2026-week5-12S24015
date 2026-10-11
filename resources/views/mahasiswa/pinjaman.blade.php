@@ -1,8 +1,16 @@
 <x-layout title="Pinjaman Saya — Portal Mahasiswa SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('katalog.index') }}"><i class="bi bi-grid-fill me-1"></i>Katalog Koleksi</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Pinjaman Saya</li>
+        </ol>
+    </nav>
+
     <div class="page-header-del d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
             <h1 class="fw-bold mb-2 fs-2">
-                <i class="bi bi-journal-check text-warning me-2"></i>Pinjaman Buku Saya
+                <i class="bi bi-journal-check text-warning me-2" aria-hidden="true"></i>Pinjaman Buku Saya
             </h1>
             <p class="mb-0 text-white-50">
                 Pantau status peminjaman aktif, batas waktu pengembalian, perpanjangan, dan riwayat peminjaman buku.
@@ -10,7 +18,7 @@
         </div>
         <div>
             <a href="{{ route('katalog.index') }}" class="btn btn-warning fw-semibold rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-lg me-1"></i> Pinjam Buku Lain
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Pinjam Buku Lain
             </a>
         </div>
     </div>
@@ -18,11 +26,11 @@
     {{-- Bagian 1: Peminjaman Aktif --}}
     <div class="card card-del border-0 shadow-sm mb-5 overflow-hidden">
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fw-semibold text-secondary">
-                <i class="bi bi-clock-history me-2 text-del"></i>Peminjaman Aktif ({{ $pinjamanAktif->count() }} / {{ config('perpustakaan.maksimal_pinjam_buku', 3) }} Buku)
-            </h5>
-            <span class="badge badge-del px-3 py-2 rounded-pill small">
-                Batas Kuota: Maks 3 Buku
+            <h2 class="h6 card-title mb-0 fw-semibold text-secondary">
+                <i class="bi bi-clock-history me-2 text-del" aria-hidden="true"></i>Peminjaman Aktif ({{ $pinjamanAktif->count() }} / {{ config('perpustakaan.maksimal_pinjam_buku', 3) }} Buku)
+            </h2>
+            <span class="badge badge-del px-3 py-2 rounded-pill" style="font-size: 0.72rem;">
+                <i class="bi bi-shield-check me-1"></i>Batas Kuota: Maks 3 Buku
             </span>
         </div>
         <div class="table-responsive">
@@ -44,7 +52,7 @@
                         <tr>
                             <td class="ps-4 text-muted fw-semibold">{{ $index + 1 }}</td>
                             <td>
-                                <a href="{{ route('katalog.show', $pinjam->buku) }}" class="fw-bold text-dark text-decoration-none">
+                                <a href="{{ route('katalog.show', $pinjam->buku) }}" class="fw-bold text-dark text-decoration-none hover-del">
                                     {{ $pinjam->buku->judul }}
                                 </a>
                                 <div class="text-muted small">
@@ -63,14 +71,14 @@
                             <td>
                                 @if($pinjam->is_terlambat)
                                     <span class="badge bg-danger px-3 py-2 rounded-pill">
-                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Terlambat {{ $pinjam->hari_terlambat }} Hari
+                                        <i class="bi bi-exclamation-triangle-fill me-1" aria-hidden="true"></i> Terlambat {{ $pinjam->hari_terlambat }} Hari
                                     </span>
                                 @else
                                     @php
                                         $sisaHari = now()->startOfDay()->diffInDays($pinjam->jatuh_tempo->startOfDay(), false);
                                     @endphp
                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
-                                        <i class="bi bi-check-circle me-1"></i> Sisa {{ (int) $sisaHari }} Hari Lagi
+                                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i> Sisa {{ (int) $sisaHari }} Hari Lagi
                                     </span>
                                 @endif
                             </td>
@@ -85,13 +93,22 @@
                             </td>
                             <td class="text-end pe-4">
                                 @if($pinjam->perpanjangan === 0 && !$pinjam->is_terlambat)
-                                    <form action="{{ route('pinjaman.perpanjang', $pinjam) }}" method="POST" class="d-inline" onsubmit="return confirm('Perpanjang masa peminjaman selama 7 hari kalender?')">
+                                    <form action="{{ route('pinjaman.perpanjang', $pinjam) }}" method="POST" class="d-inline" id="perpanjangForm{{ $pinjam->id }}">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-outline-del btn-sm rounded-pill px-3" title="Perpanjang 7 hari">
-                                            <i class="bi bi-arrow-repeat me-1"></i> Perpanjang
-                                        </button>
                                     </form>
+                                    <button type="button" 
+                                            class="btn btn-outline-del btn-sm rounded-pill px-3" 
+                                            title="Perpanjang 7 hari"
+                                            aria-label="Perpanjang peminjaman {{ $pinjam->buku->judul }}"
+                                            data-confirm-trigger
+                                            data-confirm-form="perpanjangForm{{ $pinjam->id }}"
+                                            data-confirm-title="Perpanjangan Peminjaman"
+                                            data-confirm-message="Perpanjang masa peminjaman buku '{{ $pinjam->buku->judul }}' selama 7 hari kalender?"
+                                            data-confirm-subtext="Perpanjangan hanya dapat dilakukan 1 kali per peminjaman."
+                                            data-confirm-ok="Ya, Perpanjang">
+                                        <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i> Perpanjang
+                                    </button>
                                 @elseif($pinjam->perpanjangan >= 1)
                                     <span class="badge bg-light text-muted border rounded-pill px-2 py-1 small">
                                         Sudah Diperpanjang 1x

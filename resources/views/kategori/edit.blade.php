@@ -1,13 +1,24 @@
 <x-layout title="Ubah Kategori — SIPUS-Del">
+    {{-- Breadcrumb --}}
+    <nav aria-label="Breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-del mb-0" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('kategori.index') }}">Kelola Kategori</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ubah Kategori</li>
+        </ol>
+    </nav>
+
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div>
-                    <h3 class="fw-bold mb-1 text-dark">Ubah Data Kategori</h3>
+                    <h1 class="fw-bold mb-1 text-dark fs-3">
+                        <i class="bi bi-pencil-square text-del me-2" aria-hidden="true"></i>Ubah Data Kategori
+                    </h1>
                     <p class="text-muted small mb-0">Perbarui rincian kategori <strong>{{ $kategori->nama_kategori }}</strong>.</p>
                 </div>
                 <a href="{{ route('kategori.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali
+                    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Kembali
                 </a>
             </div>
 
@@ -28,7 +39,7 @@
                                    value="{{ old('kode_kategori', $kategori->kode_kategori) }}" 
                                    maxlength="10" 
                                    required>
-                            <div class="form-text small text-muted">Maksimal 10 karakter alfanumerik unik.</div>
+                            <div class="form-text small text-muted">Maksimal 10 karakter alfanumerik unik (contoh: <code>IF-WEB</code>).</div>
                             @error('kode_kategori')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -53,9 +64,9 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 pt-2 border-top">
-                            <a href="{{ route('kategori.index') }}" class="btn btn-light px-4">Batal</a>
-                            <button type="submit" class="btn btn-del px-4 shadow-sm">
-                                <i class="bi bi-check-lg me-1"></i> Perbarui Kategori
+                            <a href="{{ route('kategori.index') }}" class="btn btn-light rounded-pill px-4">Batal</a>
+                            <button type="submit" class="btn btn-del rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-check-lg me-1" aria-hidden="true"></i> Perbarui Kategori
                             </button>
                         </div>
                     </form>
