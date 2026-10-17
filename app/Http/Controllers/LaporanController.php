@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -58,6 +59,7 @@ class LaporanController extends Controller
                 'Status Denda',
             ]);
 
+            /** @var Peminjaman $p */
             foreach ($peminjamans as $p) {
                 $statusText = $p->status === 'dipinjam'
                     ? ($p->is_terlambat ? "Terlambat ({$p->hari_terlambat} hari)" : 'Dipinjam')
@@ -74,9 +76,9 @@ class LaporanController extends Controller
                     $p->user->email ?? '-',
                     $p->buku->judul ?? '-',
                     $p->buku->isbn ?? '-',
-                    $p->tanggal_pinjam->format('Y-m-d'),
-                    $p->tanggal_jatuh_tempo->format('Y-m-d'),
-                    $p->tanggal_kembali ? $p->tanggal_kembali->format('Y-m-d') : '-',
+                    $p->tanggal_pinjam ? Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') : '-',
+                    $p->tanggal_jatuh_tempo ? Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') : '-',
+                    $p->tanggal_kembali ? Carbon::parse($p->tanggal_kembali)->format('Y-m-d') : '-',
                     $statusText,
                     $p->denda_efektif,
                     $dendaStatus,

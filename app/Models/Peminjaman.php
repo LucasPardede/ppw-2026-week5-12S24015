@@ -10,6 +10,30 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
+/**
+ * Model Peminjaman
+ *
+ * @property int $id
+ * @property string $kode_pinjam
+ * @property int|null $user_id
+ * @property int $buku_id
+ * @property string $nim_peminjam
+ * @property string $nama_peminjam
+ * @property Carbon $tanggal_pinjam
+ * @property Carbon $tanggal_jatuh_tempo
+ * @property Carbon|null $tanggal_kembali
+ * @property int $perpanjangan
+ * @property string $status
+ * @property int $denda
+ * @property bool $denda_lunas
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read bool $is_terlambat
+ * @property-read int $hari_terlambat
+ * @property-read int $denda_efektif
+ * @property-read User|null $user
+ * @property-read Buku|null $buku
+ */
 class Peminjaman extends Model
 {
     use HasFactory;

@@ -139,6 +139,7 @@ Aplikasi dapat diakses langsung melalui:
 
 Berikut adalah diagram relasi entitas lengkap 6 tabel pada SIPUS-Del Tahap 2:
 
+
 ```mermaid
 erDiagram
     users ||--o{ peminjamans : "memiliki"
@@ -146,16 +147,16 @@ erDiagram
     users ||--o{ riwayat_transaksis : "menjalankan"
     kategoris ||--o{ bukus : "mengklasifikasikan"
     bukus ||--o{ peminjamans : "dipinjam_dalam"
-    peminjamans ||--o{ riwayat_transaksis : "diaudit_dalam"
+    peminjamans ||--o{ riwayat_transaksis : "dicatat_dalam"
 
     users {
         bigint id PK
         string name "150"
         string email UK "255"
-        string nim UK "20, nullable"
-        string role "enum: admin, mahasiswa"
-        string password
-        string remember_token "100, nullable"
+        string nim UK "20 nullable"
+        string role "admin atau mahasiswa"
+        string password "hash"
+        string remember_token "100 nullable"
         timestamp created_at
         timestamp updated_at
     }
@@ -174,9 +175,9 @@ erDiagram
         string judul "200"
         string penulis "150"
         string penerbit "150"
-        year tahun_terbit
+        int tahun_terbit "tahun"
         bigint kategori_id FK
-        int unsigned stok "default 0"
+        int stok "unsigned default 0"
         text sinopsis "nullable"
         timestamp created_at
         timestamp updated_at
@@ -186,15 +187,15 @@ erDiagram
         bigint id PK
         string kode_pinjam UK "30"
         bigint user_id FK
-        bigint buku_id FK "CASCADE ON DELETE"
+        bigint buku_id FK
         string nim_peminjam "20"
         string nama_peminjam "150"
         date tanggal_pinjam
         date tanggal_jatuh_tempo
         date tanggal_kembali "nullable"
         int perpanjangan "default 0"
-        string status "dipinjam, dikembalikan"
-        decimal denda "10,2 default 0"
+        string status "dipinjam atau dikembalikan"
+        decimal denda "default 0"
         boolean denda_lunas "default false"
         timestamp created_at
         timestamp updated_at
@@ -204,7 +205,7 @@ erDiagram
         bigint id PK
         string judul "200"
         text konten
-        string kategori "informasi, jadwal, peraturan"
+        string kategori "informasi atau jadwal"
         boolean is_aktif "default true"
         boolean is_pinned "default false"
         bigint author_id FK
@@ -214,9 +215,9 @@ erDiagram
 
     riwayat_transaksis {
         bigint id PK
-        bigint peminjaman_id FK "nullable, ON DELETE SET NULL"
-        bigint aktor_user_id FK "nullable, ON DELETE SET NULL"
-        string aksi "30 (pinjam, kembali, perpanjang, lunas)"
+        bigint peminjaman_id FK "nullable"
+        bigint aktor_user_id FK "nullable"
+        string aksi "30"
         text keterangan "nullable"
         timestamp created_at
         timestamp updated_at
@@ -224,6 +225,7 @@ erDiagram
 ```
 
 ---
+
 
 ## 6. Penjelasan Transaksi ACID dan Locking Strategy
 
