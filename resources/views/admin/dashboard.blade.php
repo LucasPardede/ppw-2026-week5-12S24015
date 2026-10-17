@@ -175,12 +175,12 @@
                                         @endif
                                     </td>
                                     <td class="fw-semibold">
-                                        <a href="{{ route('buku.show', $buku) }}" class="text-dark text-decoration-none">
+                                        <a href="{{ route('buku.show', $buku->id ?? $buku) }}" class="text-dark text-decoration-none">
                                             {{ $buku->judul }}
                                         </a>
                                     </td>
                                     <td>
-                                        <span class="badge badge-del">{{ $buku->kategori->nama_kategori ?? '-' }}</span>
+                                        <span class="badge badge-del">{{ $buku->nama_kategori ?? $buku->kategori->nama_kategori ?? '-' }}</span>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold">

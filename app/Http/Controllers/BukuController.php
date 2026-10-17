@@ -17,24 +17,25 @@ class BukuController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Buku::with('kategori');
+        $query = Buku::with('kategori')->withCount('peminjamans');
 
-        // Pencarian multi-kolom
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('judul', 'like', "%{$search}%")
-                  ->orWhere('penulis', 'like', "%{$search}%")
-                  ->orWhere('isbn', 'like', "%{$search}%");
+        // Pencarian multi-kolom dibungkus closure where(...)
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $search = trim($request->input('search'));
+            $q->where(function ($sub) use ($search) {
+                $sub->where('judul', 'like', "%{$search}%")
+                    ->orWhere('penulis', 'like', "%{$search}%")
+                    ->orWhere('isbn', 'like', "%{$search}%");
             });
-        }
+        });
 
         // Filter berdasarkan kategori
-        if ($kategoriId = $request->input('kategori_id')) {
-            $query->where('kategori_id', $kategoriId);
-        }
+        $query->when($request->filled('kategori_id'), function ($q) use ($request) {
+            $q->where('kategori_id', $request->input('kategori_id'));
+        });
 
         $bukus = $query->latest()->paginate(10)->withQueryString();
-        $kategoris = Kategori::orderBy('nama_kategori')->get();
+        $kategoris = Kategori::withCount('bukus')->orderBy('nama_kategori')->get();
 
         return view('buku.index', compact('bukus', 'kategoris'));
     }

@@ -31,21 +31,88 @@
                         Cari Buku
                     </button>
                 </form>
+
+                {{-- Panel Pencarian Terakhir (FITUR 3: State Session) --}}
+                @if(!empty($lastSearch))
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25);">
+                        <i class="bi bi-clock-history text-warning" style="font-size: 0.8rem;"></i>
+                        <span class="text-white-50" style="font-size: 0.78rem;">Pencarian terakhir:</span>
+                        <a href="{{ route('katalog.index', ['search' => $lastSearch]) }}" class="badge bg-warning text-dark text-decoration-none fw-bold rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                            "{{ $lastSearch }}" <i class="bi bi-arrow-repeat ms-1"></i>
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <div class="col-lg-4 d-none d-lg-block text-end">
                 <div class="d-inline-flex flex-column gap-2 text-start p-3 rounded-4" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); min-width: 260px;">
                     <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255,255,255,0.12);">
-                        <span class="small text-white-75"><i class="bi bi-bookshelf text-warning me-1"></i> Total Koleksi</span>
-                        <strong class="text-white fs-5">{{ $totalKoleksi ?? \App\Models\Buku::count() }}</strong>
+                        <span class="small text-white-75"><i class="bi bi-bookshelf text-warning me-1"></i> Total Judul</span>
+                        <strong class="text-white fs-5">{{ $statistik['total_judul'] ?? 0 }}</strong>
                     </div>
                     <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255,255,255,0.12);">
-                        <span class="small text-white-75"><i class="bi bi-check2-circle text-success me-1"></i> Siap Dipinjam</span>
-                        <strong class="text-white fs-5">{{ $totalTersedia ?? \App\Models\Buku::where('stok', '>', 0)->count() }}</strong>
+                        <span class="small text-white-75"><i class="bi bi-check2-circle text-success me-1"></i> Stok Tersedia</span>
+                        <strong class="text-white fs-5">{{ $statistik['total_stok_tersedia'] ?? 0 }}</strong>
                     </div>
                     <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255,255,255,0.12);">
                         <span class="small text-white-75"><i class="bi bi-tags text-info me-1"></i> Kategori</span>
                         <strong class="text-white fs-5">{{ $kategoris->count() }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== 4 KARTU STATISTIK SIRKULASI (DB::table) ===== --}}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 p-2 bg-purple-subtle text-del">
+                        <i class="bi bi-journal-album fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Judul Buku</div>
+                        <div class="fw-bold fs-4 text-dark lh-1">{{ number_format($statistik['total_judul'] ?? 0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 p-2 bg-success-subtle text-success">
+                        <i class="bi bi-check2-circle fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Stok Tersedia</div>
+                        <div class="fw-bold fs-4 text-success lh-1">{{ number_format($statistik['total_stok_tersedia'] ?? 0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 p-2 bg-warning-subtle text-warning-emphasis">
+                        <i class="bi bi-arrow-repeat fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Sedang Dipinjam</div>
+                        <div class="fw-bold fs-4 text-warning-emphasis lh-1">{{ number_format($statistik['total_sedang_dipinjam'] ?? 0) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 p-2 bg-info-subtle text-info-emphasis">
+                        <i class="bi bi-box-arrow-in-down-left fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Dikembalikan</div>
+                        <div class="fw-bold fs-4 text-info-emphasis lh-1">{{ number_format($statistik['total_dikembalikan'] ?? 0) }}</div>
                     </div>
                 </div>
             </div>
@@ -130,12 +197,12 @@
         <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: thin;">
             <a href="{{ route('katalog.index', request()->except('kategori_id')) }}"
                class="chip-filter {{ !request('kategori_id') ? 'active' : '' }}">
-                Semua Kategori ({{ $totalKoleksi ?? \App\Models\Buku::count() }})
+                Semua Kategori ({{ $statistik['total_judul'] ?? $bukus->total() }})
             </a>
             @foreach($kategoris as $kat)
                 <a href="{{ route('katalog.index', array_merge(request()->except('kategori_id'), ['kategori_id' => $kat->id])) }}"
                    class="chip-filter {{ request('kategori_id') == $kat->id ? 'active' : '' }}">
-                    {{ $kat->nama_kategori }} ({{ $kat->bukus_count ?? $kat->bukus->count() }})
+                    {{ $kat->nama_kategori }} ({{ $kat->bukus_count ?? 0 }})
                 </a>
             @endforeach
         </div>
@@ -244,7 +311,7 @@
                                             data-confirm-form="pinjamForm{{ $buku->id }}"
                                             data-confirm-title="Konfirmasi Peminjaman"
                                             data-confirm-message="Pinjam buku &quot;{{ addslashes($buku->judul) }}&quot;?"
-                                            data-confirm-subtext="Masa pinjam adalah <strong>14 hari kalender</strong>. Denda Rp1.000/hari jika telat."
+                                            data-confirm-subtext="Masa pinjam adalah <strong>7 hari kalender</strong>. Denda Rp1.000/hari jika telat."
                                             data-confirm-ok="Pinjam Sekarang"
                                             aria-label="Pinjam buku {{ $buku->judul }}">
                                         <i class="bi bi-bookmark-plus me-1" aria-hidden="true"></i> Pinjam
@@ -332,7 +399,7 @@
                     </div>
                     <h3 class="h6 fw-bold text-dark mb-2">Aturan Sirkulasi Terbuka</h3>
                     <p class="small text-muted mb-0">
-                        Batas kuota maksimal 3 buku dengan durasi pinjam 14 hari kalender. Bebas denda jika dikembalikan tepat waktu.
+                        Batas kuota maksimal 3 buku dengan durasi pinjam 7 hari kalender. Bebas denda jika dikembalikan tepat waktu.
                     </p>
                 </div>
             </div>

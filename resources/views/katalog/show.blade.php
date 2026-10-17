@@ -82,7 +82,7 @@
                                         data-confirm-form="pinjamDetailForm{{ $buku->id }}"
                                         data-confirm-title="Konfirmasi Peminjaman Buku"
                                         data-confirm-message="Ajukan peminjaman buku '{{ addslashes($buku->judul) }}'?"
-                                        data-confirm-subtext="Masa peminjaman standar adalah <strong>14 hari kalender</strong>. Kuota maksimal 3 buku bersamaan."
+                                        data-confirm-subtext="Masa peminjaman standar adalah <strong>7 hari kalender</strong>. Kuota maksimal 3 buku bersamaan."
                                         data-confirm-ok="Ajukan Sekarang"
                                         aria-label="Pinjam buku {{ $buku->judul }}">
                                     <i class="bi bi-bookmark-check-fill me-1" aria-hidden="true"></i> Pinjam Buku Sekarang
@@ -264,7 +264,7 @@
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded-3 bg-light h-100">
                                         <div class="fw-bold text-dark mb-1"><i class="bi bi-1-circle-fill text-del me-1"></i> Masa Peminjaman</div>
-                                        <p class="small text-muted mb-0">Maksimal peminjaman adalah 14 hari kalender terhitung sejak hari transaksi diajukan.</p>
+                                        <p class="small text-muted mb-0">Maksimal peminjaman adalah 7 hari kalender terhitung sejak hari transaksi diajukan.</p>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">

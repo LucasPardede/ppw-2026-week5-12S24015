@@ -3,34 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buku;
-use App\Models\Kategori;
 use App\Models\Peminjaman;
 use App\Models\Pengumuman;
 use App\Models\RiwayatTransaksi;
-use App\Models\User;
+use App\Services\StatistikService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected StatistikService $statistikService
+    ) {}
+
     /**
-     * Menampilkan dashboard analitik administrator.
+     * Menampilkan dashboard analitik administrator menggunakan DB::table() untuk metrik & buku populer.
      */
     public function index(): View
     {
         $today = now()->startOfDay()->toDateString();
 
-        $totalBuku = Buku::count();
-        $totalKategori = Kategori::count();
-        $totalMahasiswa = User::where('role', 'mahasiswa')->count();
-        $pinjamanAktif = Peminjaman::where('status', 'dipinjam')->count();
-        $pinjamanTerlambat = Peminjaman::where('status', 'dipinjam')
-            ->where('tanggal_jatuh_tempo', '<', $today)
-            ->count();
+        $stats = $this->statistikService->getStatistikDashboard();
 
-        // Total denda tersimpan yang belum lunas
-        $dendaBelumLunas = Peminjaman::where('status', 'dikembalikan')
+        $totalBuku = $stats['total_judul'];
+        $totalKategori = $stats['total_kategori'];
+        $totalMahasiswa = $stats['total_mahasiswa'];
+        $pinjamanAktif = $stats['pinjaman_aktif'];
+        $pinjamanTerlambat = $stats['pinjaman_terlambat'];
+
+        // Total denda tersimpan yang belum lunas (dikembalikan denda_lunas = false)
+        $dendaBelumLunas = (float) (DB::table('peminjamans')
+            ->where('status', 'dikembalikan')
             ->where('denda_lunas', false)
-            ->sum('denda');
+            ->sum('denda') ?? 0);
 
         // Ditambah denda berjalan dari buku aktif yang terlambat
         $pinjamanTerlambatList = Peminjaman::where('status', 'dipinjam')
@@ -41,14 +46,10 @@ class DashboardController extends Controller
             $dendaBelumLunas += $p->hitungDendaBerjalan();
         }
 
-        // 5 Buku terpopuler berdasarkan frekuensi peminjaman
-        $bukuPopuler = Buku::with('kategori')
-            ->withCount('peminjamans')
-            ->orderByDesc('peminjamans_count')
-            ->take(5)
-            ->get();
+        // FITUR 4: 5 Buku terpopuler berdasarkan frekuensi peminjaman via DB::table()
+        $bukuPopuler = $this->statistikService->getBukuPopuler(5);
 
-        // Peringatan buku dengan stok menipis (<= 3)
+        // Peringatan buku dengan stok menipis (<= 3) dengan Eager Loading
         $stokMenipis = Buku::with('kategori')
             ->where('stok', '<=', 3)
             ->orderBy('stok', 'asc')
@@ -62,7 +63,7 @@ class DashboardController extends Controller
             ->get();
 
         // 4 Pengumuman terbaru
-        $totalPengumuman = Pengumuman::count();
+        $totalPengumuman = $stats['total_pengumuman'];
         $pengumumanTerbaru = Pengumuman::with('author')->latest()->take(4)->get();
 
         // 8 Riwayat Transaksi Audit Log terbaru (ACID Logging)
