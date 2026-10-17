@@ -30,6 +30,19 @@ class Buku extends Model
     ];
 
     /**
+     * Konversi tipe data atribut
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'stok' => 'integer',
+            'tahun_terbit' => 'integer',
+        ];
+    }
+
+    /**
      * Relasi Many-to-One: Setiap buku dimiliki oleh satu kategori.
      */
     public function kategori(): BelongsTo

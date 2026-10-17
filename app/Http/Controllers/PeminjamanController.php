@@ -23,7 +23,7 @@ class PeminjamanController extends Controller
         $pinjamanAktif = Peminjaman::with(['buku.kategori'])
             ->where('user_id', $user->id)
             ->where('status', 'dipinjam')
-            ->orderBy('jatuh_tempo', 'asc')
+            ->orderBy('tanggal_jatuh_tempo', 'asc')
             ->get();
 
         // Riwayat pinjaman yang sudah dikembalikan dengan Eager Loading
@@ -101,7 +101,7 @@ class PeminjamanController extends Controller
                 'user_id' => $user->id,
                 'buku_id' => $buku->id,
                 'tanggal_pinjam' => $tanggalPinjam->toDateString(),
-                'jatuh_tempo' => $jatuhTempo->toDateString(),
+                'tanggal_jatuh_tempo' => $jatuhTempo->toDateString(),
                 'status' => 'dipinjam',
                 'perpanjangan' => 0,
                 'denda' => 0,
@@ -137,10 +137,10 @@ class PeminjamanController extends Controller
         }
 
         $lamaPerpanjang = (int) config('perpustakaan.lama_perpanjang_hari', 7);
-        $jatuhTempoBaru = $peminjaman->jatuh_tempo->copy()->addDays($lamaPerpanjang);
+        $jatuhTempoBaru = $peminjaman->tanggal_jatuh_tempo->copy()->addDays($lamaPerpanjang);
 
         $peminjaman->update([
-            'jatuh_tempo' => $jatuhTempoBaru->toDateString(),
+            'tanggal_jatuh_tempo' => $jatuhTempoBaru->toDateString(),
             'perpanjangan' => $peminjaman->perpanjangan + 1,
         ]);
 
@@ -159,7 +159,7 @@ class PeminjamanController extends Controller
             $query->where('status', 'dipinjam');
         } elseif ($status === 'terlambat') {
             $today = now()->startOfDay()->toDateString();
-            $query->where('status', 'dipinjam')->where('jatuh_tempo', '<', $today);
+            $query->where('status', 'dipinjam')->where('tanggal_jatuh_tempo', '<', $today);
         } elseif ($status === 'dikembalikan') {
             $query->where('status', 'dikembalikan');
         }

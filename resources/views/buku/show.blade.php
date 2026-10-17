@@ -116,7 +116,7 @@
                                         <div class="text-muted" style="font-size: 0.75rem;">{{ $pinjam->user->nim ?? $pinjam->user->email }}</div>
                                     </td>
                                     <td>{{ $pinjam->tanggal_pinjam->format('d/m/Y') }}</td>
-                                    <td>{{ $pinjam->jatuh_tempo->format('d/m/Y') }}</td>
+                                    <td>{{ $pinjam->tanggal_jatuh_tempo->format('d/m/Y') }}</td>
                                     <td>
                                         @if($pinjam->status === 'dipinjam')
                                             @if($pinjam->is_terlambat)

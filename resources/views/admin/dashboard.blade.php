@@ -306,7 +306,7 @@
                                 </a>
                             </td>
                             <td>{{ $tx->tanggal_pinjam->format('d/m/Y') }}</td>
-                            <td>{{ $tx->jatuh_tempo->format('d/m/Y') }}</td>
+                            <td>{{ $tx->tanggal_jatuh_tempo->format('d/m/Y') }}</td>
                             <td>
                                 @if($tx->status === 'dipinjam')
                                     @if($tx->is_terlambat)

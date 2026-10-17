@@ -97,7 +97,7 @@ class User extends Authenticatable
         $today = now()->startOfDay()->toDateString();
         return $this->peminjamans()
             ->where('status', 'dipinjam')
-            ->where('jatuh_tempo', '<', $today)
+            ->where('tanggal_jatuh_tempo', '<', $today)
             ->exists();
     }
 }

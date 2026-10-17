@@ -80,7 +80,7 @@
                                 <span class="badge badge-del">{{ $tx->buku->kategori->nama_kategori ?? '-' }}</span>
                             </td>
                             <td>{{ $tx->tanggal_pinjam->format('d/m/Y') }}</td>
-                            <td class="{{ $tx->is_terlambat ? 'text-danger fw-bold' : '' }}">{{ $tx->jatuh_tempo->format('d/m/Y') }}</td>
+                            <td class="{{ $tx->is_terlambat ? 'text-danger fw-bold' : '' }}">{{ $tx->tanggal_jatuh_tempo->format('d/m/Y') }}</td>
                             <td>{{ $tx->tanggal_kembali ? $tx->tanggal_kembali->format('d/m/Y') : '-' }}</td>
                             <td>
                                 @if($tx->status === 'dipinjam')

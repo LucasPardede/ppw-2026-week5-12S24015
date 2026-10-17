@@ -66,7 +66,7 @@
                             </td>
                             <td>{{ $pinjam->tanggal_pinjam->format('d M Y') }}</td>
                             <td class="fw-semibold {{ $pinjam->is_terlambat ? 'text-danger' : 'text-dark' }}">
-                                {{ $pinjam->jatuh_tempo->format('d M Y') }}
+                                {{ $pinjam->tanggal_jatuh_tempo->format('d M Y') }}
                             </td>
                             <td>
                                 @if($pinjam->is_terlambat)
@@ -75,7 +75,7 @@
                                     </span>
                                 @else
                                     @php
-                                        $sisaHari = now()->startOfDay()->diffInDays($pinjam->jatuh_tempo->startOfDay(), false);
+                                        $sisaHari = now()->startOfDay()->diffInDays($pinjam->tanggal_jatuh_tempo->startOfDay(), false);
                                     @endphp
                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
                                         <i class="bi bi-check-circle me-1" aria-hidden="true"></i> Sisa {{ (int) $sisaHari }} Hari Lagi

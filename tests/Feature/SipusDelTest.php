@@ -172,7 +172,7 @@ class SipusDelTest extends TestCase
             'user_id' => $this->mahasiswa->id,
             'buku_id' => $this->buku->id,
             'tanggal_pinjam' => now()->toDateString(),
-            'jatuh_tempo' => now()->addDays(7)->toDateString(),
+            'tanggal_jatuh_tempo' => now()->addDays(7)->toDateString(),
             'status' => 'dipinjam',
             'perpanjangan' => 0,
             'denda' => 0,
@@ -223,7 +223,7 @@ class SipusDelTest extends TestCase
             'user_id' => $this->mahasiswa->id,
             'buku_id' => $this->buku->id,
             'tanggal_pinjam' => now()->toDateString(),
-            'jatuh_tempo' => now()->addDays(7)->toDateString(),
+            'tanggal_jatuh_tempo' => now()->addDays(7)->toDateString(),
             'status' => 'dipinjam',
             'perpanjangan' => 0,
             'denda' => 0,
@@ -248,7 +248,7 @@ class SipusDelTest extends TestCase
             'user_id' => $this->mahasiswa->id,
             'buku_id' => $this->buku->id,
             'tanggal_pinjam' => now()->subDays(10)->toDateString(),
-            'jatuh_tempo' => now()->subDays(3)->toDateString(), // Terlambat 3 hari
+            'tanggal_jatuh_tempo' => now()->subDays(3)->toDateString(), // Terlambat 3 hari
             'status' => 'dipinjam',
             'perpanjangan' => 0,
             'denda' => 0,

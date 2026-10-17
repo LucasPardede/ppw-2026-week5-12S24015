@@ -98,7 +98,7 @@
                             </td>
                             <td>{{ $row->tanggal_pinjam->format('d/m/Y') }}</td>
                             <td class="{{ $row->is_terlambat ? 'text-danger fw-bold' : '' }}">
-                                {{ $row->jatuh_tempo->format('d/m/Y') }}
+                                {{ $row->tanggal_jatuh_tempo->format('d/m/Y') }}
                             </td>
                             <td>{{ $row->tanggal_kembali ? $row->tanggal_kembali->format('d/m/Y') : '-' }}</td>
                             <td>

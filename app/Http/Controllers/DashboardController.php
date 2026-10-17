@@ -23,7 +23,7 @@ class DashboardController extends Controller
         $totalMahasiswa = User::where('role', 'mahasiswa')->count();
         $pinjamanAktif = Peminjaman::where('status', 'dipinjam')->count();
         $pinjamanTerlambat = Peminjaman::where('status', 'dipinjam')
-            ->where('jatuh_tempo', '<', $today)
+            ->where('tanggal_jatuh_tempo', '<', $today)
             ->count();
 
         // Total denda tersimpan yang belum lunas
@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
         // Ditambah denda berjalan dari buku aktif yang terlambat
         $pinjamanTerlambatList = Peminjaman::where('status', 'dipinjam')
-            ->where('jatuh_tempo', '<', $today)
+            ->where('tanggal_jatuh_tempo', '<', $today)
             ->get();
 
         foreach ($pinjamanTerlambatList as $p) {

@@ -22,8 +22,11 @@ class PeminjamanFactory extends Factory
         return [
             'user_id' => User::factory(),
             'buku_id' => Buku::factory(),
+            'kode_pinjam' => Peminjaman::buatKode(),
+            'nim_peminjam' => fake()->numerify('12S24###'),
+            'nama_peminjam' => fake()->name(),
             'tanggal_pinjam' => $tanggalPinjam->format('Y-m-d'),
-            'jatuh_tempo' => $jatuhTempo->format('Y-m-d'),
+            'tanggal_jatuh_tempo' => $jatuhTempo->format('Y-m-d'),
             'tanggal_kembali' => null,
             'perpanjangan' => 0,
             'status' => 'dipinjam',

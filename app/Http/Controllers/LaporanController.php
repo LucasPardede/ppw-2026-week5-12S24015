@@ -75,7 +75,7 @@ class LaporanController extends Controller
                     $p->buku->judul ?? '-',
                     $p->buku->isbn ?? '-',
                     $p->tanggal_pinjam->format('Y-m-d'),
-                    $p->jatuh_tempo->format('Y-m-d'),
+                    $p->tanggal_jatuh_tempo->format('Y-m-d'),
                     $p->tanggal_kembali ? $p->tanggal_kembali->format('Y-m-d') : '-',
                     $statusText,
                     $p->denda_efektif,
@@ -107,7 +107,7 @@ class LaporanController extends Controller
             $query->where('status', 'dipinjam');
         } elseif ($status === 'terlambat') {
             $today = now()->startOfDay()->toDateString();
-            $query->where('status', 'dipinjam')->where('jatuh_tempo', '<', $today);
+            $query->where('status', 'dipinjam')->where('tanggal_jatuh_tempo', '<', $today);
         } elseif ($status === 'dikembalikan') {
             $query->where('status', 'dikembalikan');
         }

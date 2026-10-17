@@ -113,7 +113,7 @@
                             </td>
                             <td>{{ $pinjam->tanggal_pinjam->format('d/m/Y') }}</td>
                             <td class="fw-semibold {{ $pinjam->is_terlambat ? 'text-danger' : 'text-dark' }}">
-                                {{ $pinjam->jatuh_tempo->format('d/m/Y') }}
+                                {{ $pinjam->tanggal_jatuh_tempo->format('d/m/Y') }}
                             </td>
                             <td>
                                 {{ $pinjam->tanggal_kembali ? $pinjam->tanggal_kembali->format('d/m/Y') : '-' }}
