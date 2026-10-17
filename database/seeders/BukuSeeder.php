@@ -163,7 +163,7 @@ class BukuSeeder extends Seeder
                 'penerbit' => 'Wiley',
                 'tahun_terbit' => 2019,
                 'kategori_kode' => 'CS-SEC',
-                'stok' => 2,
+                'stok' => 1,
                 'sinopsis' => 'Mendeteksi dan mengeksploitasi celah keamanan web seperti CSRF, XSS, dan SQL Injection.',
             ],
 

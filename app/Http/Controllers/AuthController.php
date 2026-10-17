@@ -64,26 +64,38 @@ class AuthController extends Controller
             ])->onlyInput('email');
         }
 
-        // Cek apakah akun sudah terdaftar di database
+        // Cek apakah akun sudah terdaftar di database (berdasarkan email atau NIM dari CIS mock)
         $user = User::where('email', $email)->first();
 
-        // Pendaftaran otomatis HANYA jika akun belum ada dan lolos verifikasi mock CIS (selalu role mahasiswa)
-        // Penutupan celah: TIDAK PERNAH membuat akun admin secara otomatis
-        if (!$user) {
-            $authResult = $this->cisAuthenticator->authenticate($email, $password);
-            if ($authResult['success']) {
-                $user = User::create([
-                    'name' => $authResult['name'] ?? 'Mahasiswa Del',
-                    'email' => $email,
-                    'nim' => $authResult['nim'] ?? null,
-                    'role' => 'mahasiswa', // Wajib mahasiswa
-                    'password' => Hash::make($password),
-                ]);
-            }
+        // Jalankan CIS Mock jika akun belum ditemukan atau mahasiswa
+        $authResult = $this->cisAuthenticator->authenticate($email, $password);
+
+        if (!$user && $authResult['success'] && !empty($authResult['nim'])) {
+            $user = User::where('nim', $authResult['nim'])->first();
         }
 
+        // Pendaftaran otomatis HANYA jika akun benar-benar belum ada di tabel users
+        // Penutupan celah: TIDAK PERNAH membuat akun admin secara otomatis
+        if (!$user && $authResult['success']) {
+            $user = User::create([
+                'name' => $authResult['name'] ?? 'Mahasiswa Del',
+                'email' => $email,
+                'nim' => $authResult['nim'] ?? null,
+                'role' => 'mahasiswa', // Wajib mahasiswa, admin hanya dari seeder
+                'password' => Hash::make($password),
+            ]);
+        }
+
+        // Sinkronisasi kata sandi untuk simulasi CIS mahasiswa jika akun cocok
+        if ($user && $user->role === 'mahasiswa' && $authResult['success']) {
+            $user->password = Hash::make($password);
+            $user->save();
+        }
+
+        $loginEmail = $user ? $user->email : $email;
+
         // Otentikasi formal menggunakan Auth::attempt()
-        if (!Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+        if (!Auth::attempt(['email' => $loginEmail, 'password' => $password], $remember)) {
             RateLimiter::hit($throttleKey, 60);
 
             return back()->withErrors([

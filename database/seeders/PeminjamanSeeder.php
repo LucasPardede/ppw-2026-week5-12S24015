@@ -100,7 +100,7 @@ class PeminjamanSeeder extends Seeder
             [
                 'kode_pinjam' => 'PJM-SEED-000006',
                 'user' => $daniel,
-                'buku_index' => 21, // The Pragmatic Programmer (stok awal = 1)
+                'buku_index' => 20, // The Pragmatic Programmer (stok awal = 1)
                 'tanggal_pinjam' => $now->copy()->subDays(3)->toDateString(),
                 'tanggal_jatuh_tempo' => $now->copy()->addDays(4)->toDateString(),
                 'tanggal_kembali' => null,
@@ -191,7 +191,7 @@ class PeminjamanSeeder extends Seeder
             '978-013-444421-5' => 3,
             '978-013-359414-0' => 5,
             '978-111-884394-9' => 4,
-            '978-159-327992-9' => 2,
+            '978-159-327992-9' => 1,
             '978-013-604259-4' => 5,
             '978-149-203264-9' => 6,
             '978-026-203561-3' => 3,
