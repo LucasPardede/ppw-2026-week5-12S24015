@@ -1,344 +1,334 @@
 # SIPUS-Del: Sistem Informasi Perpustakaan Kampus Del
-
-**Mata Kuliah:** Pemrograman & Pengujian Web (12S3101)  
-**Tugas:** Modul Praktikum Minggu 05 — Tugas Mandiri (Individual Assignment)  
+### Modul Praktikum Minggu 6 — Tugas Mandiri "SIPUS-Del Tahap 2"
+**Mata Kuliah:** 12S3101 Pemrograman dan Pengujian Web  
 **Penyusun:** Lucas Pardede (NIM: 12S24015)  
-**Program Studi:** Sarjana Sistem Informasi / Sarjana Informatika  
 **Institusi:** Institut Teknologi Del, Laguboti, Toba  
 **Repositori:** `ppw-2026-week5-12S24015`  
+**Branch:** `week6-db-session`
 
 ---
 
-## 1. Ringkasan Eksekutif & Deskripsi Sistem
+## 1. Judul, Deskripsi Sistem, dan Fitur Utama
 
-**SIPUS-Del** adalah aplikasi web pengelolaan koleksi dan sirkulasi peminjaman buku perpustakaan kampus berbasis Server-Side Rendering (SSR). Sistem dibangun mengimplementasikan pola arsitektur **Model-View-Controller (MVC)**, **Eloquent ORM** relasional multi-entitas, **Server-Side Validation**, **Blade Component Engine**, dan **Asset Bundling Vite**.
+**SIPUS-Del** adalah aplikasi web sistem informasi perpustakaan digital Institut Teknologi Del yang dirancang untuk mendukung operasional sirkulasi koleksi pustaka, pencegahan inkonsistensi data multi-pengguna (*race condition*), serta keamanan sesi dan autentikasi terisolasi per peran pengguna (*Role-Based Access Control*).
 
-Sistem menyediakan dua pengalaman antarmuka terisolasi berdasarkan peran:
-1. **Panel Administrator (Pustakawan):** Berorientasi monitoring dan manajemen data. Mendukung 7 aksi CRUD baku RESTful untuk Kategori dan Buku, pencatatan sirkulasi peminjaman & pengembalian, audit denda keterlambatan, manajemen data mahasiswa peminjam, serta laporan sirkulasi dengan fitur ekspor berkas CSV.
-2. **Portal Mahasiswa:** Berorientasi katalog kartu interaktif. Mahasiswa dapat mencari dan memfilter koleksi buku, melihat ketersediaan stok, mengajukan peminjaman (kuota maksimal 3 buku), memperpanjang masa peminjaman (1 kali perpanjangan 7 hari), serta memantau status denda berjalan.
+Pada Tahap 2 (Minggu 6), SIPUS-Del ditingkatkan dari prototipe berbasis SQLite menjadi sistem perpustakaan kelas produksi (*enterprise-ready*) berbasis MySQL InnoDB dengan garansi integritas **ACID (Atomicity, Consistency, Isolation, Durability)**, penanganan konkurensi dengan penguncian baris (*pessimistic row locking* `lockForUpdate`), arsitektur layanan terpisah (`PeminjamanService`, `StatistikService`), dan mekanisme keamanan sesi & cookie.
 
----
-
-## 2. Lingkungan Pengembangan & Spesifikasi Perangkat
-
-Aplikasi telah divalidasi dan berjalan optimal pada lingkungan:
-- **Sistem Operasi:** Windows (Laragon 6.0.0 Full)
-- **PHP Runtime:** PHP 8.5.11 CLI / Apache Module (Ekstensi aktif: `pdo_sqlite`, `sqlite3`, `pdo_mysql`, `mbstring`, `openssl`, `xml`, `curl`, `fileinfo`)
-- **Web Framework:** Laravel Framework 13.35.0 (Kompatibilitas penuh siklus hidup Request Laravel 11.x - 13.x)
-- **Database Engine:** SQLite 3 (Database bawaan: `database/database.sqlite`)
-- **Tooling Frontend & Bundler:** Node.js 18.8 LTS & Vite 5.4.21 (`@vite(['resources/css/app.css', 'resources/js/app.js'])`)
-- **Desain UI:** Bootstrap 5.3.3, Bootstrap Icons 1.11.3, Google Fonts *Inter*, dan Tema Khusus *Del Royal Purple* (`#4C1D95`, hover `#3B0764`).
-
----
-
-## 3. Akun Uji Coba Demo (Demo Credentials)
-
-Untuk mempermudah pengujian dosen pengampu dan asisten lab:
-
-| Peran | Alamat Email | Kata Sandi | Akses Antarmuka | Catatan |
-|---|---|---|---|---|
-| **Admin Pustakawan** | `admin@del.ac.id` | `admin123` | Panel Admin (`/admin/dashboard`) | Terdaftar di `.env` (`ADMIN_EMAILS`), verifikasi password lokal terenkripsi bcrypt |
-| **Mahasiswa 1 (Lucas)** | `lucas.pardede@del.ac.id` | `(bebas)` | Portal Mahasiswa (`/katalog`) | NIM: 12S24015, memiliki 1 pinjaman aktif |
-| **Mahasiswa 2 (Budi)** | `budi.santoso@del.ac.id` | `(bebas)` | Portal Mahasiswa (`/katalog`) | NIM: 12S24001, memiliki pinjaman terlambat (denda berjalan) |
-| **Mahasiswa Baru** | `[nama/nim]@students.del.ac.id` | `(bebas)` | Portal Mahasiswa (`/katalog`) | Mode simulasi CIS langsung membuat akun baru otomatis |
-
-> **Catatan Autentikasi Simulasi CIS:**  
-> Sesuai SyRS v2.0, mode `CIS_AUTH_MODE=mock` aktif secara bawaan. Mahasiswa dapat login menggunakan format email Del valid dengan password apa pun. Password mahasiswa tidak disimpan dalam plain-text. Akun admin **wajib** menggunakan kata sandi lokal (`admin123`) untuk keamanan.
+### Fitur Unggulan Sistem:
+1. **Transaksi ACID & Pessimistic Row Locking (`lockForUpdate`):**
+   - Transaksi peminjaman dan pengembalian dibungkus dalam `DB::transaction(..., 3)`.
+   - Mengunci baris buku dan peminjaman secara selektif untuk mencegah anomali *Lost Update* dan penjualan/peminjaman berlebih (*overselling*).
+   - Pengurutan kunci deterministik (kunci tabel `bukus` sebelum `peminjamans`) untuk mengeliminasi potensi *deadlock*.
+2. **Skema Relasional & Constraint Konsistensi:**
+   - Kolom `kode_pinjam` acak unik 30 karakter berformat `PJM-YYYYMMDD-XXXXXX`.
+   - Kolom `tanggal_jatuh_tempo` (menggantikan nama lama `jatuh_tempo`).
+   - Foreign key `buku_id` dengan aturan `ON DELETE CASCADE`.
+   - Indeks komposit `peminjamans_nim_status_idx` dan `peminjamans_buku_nim_status_idx` untuk kecepatan kueri sirkulasi.
+   - Kolom `stok` pada tabel `bukus` berjenis `unsignedInteger` default `0`, sehingga basis data di level engine MySQL menolak angka minus.
+3. **Audit Trail Mutasi (Tabel `riwayat_transaksis`):**
+   - Mencatat otomatis setiap transaksi sukses (`pinjam`, `kembali`, `perpanjang`, `lunas`) bersama aktor, kode referensi, dan timestamp di dalam transaksi yang sama.
+4. **Analitik Sirkulasi Koleksi (DB::table Query Builder):**
+   - 4 kartu statistik performa tinggi bebas N+1: *Total Judul Buku*, *Total Stok Tersedia* (`sum('stok')`), *Total Buku Sedang Dipinjam*, *Total Dikembalikan*.
+   - Analitik Buku Terpopuler via query builder `DB::table()` dengan `join`, `groupBy`, dan agregasi `COUNT`.
+5. **State Management Sesi & Cookie Aman:**
+   - Regenerasi ID sesi (`session()->regenerate()`) saat login untuk menolak *Session Fixation*.
+   - Cookie `del_last_user_email` bertanda `HttpOnly=true` dan `SameSite=Lax` untuk mengisi otomatis email di login form.
+   - Session state pencarian terakhir (`last_search`) dengan panel pencarian cepat di katalog.
+   - Session state waktu masuk (`login_timestamp`) yang tampil di navbar mahasiswa dan admin.
+   - Peringatan dini *"Buku Jatuh Tempo Besok"* pada portal mahasiswa.
+6. **Perintah Simulasi Uji Balapan (`php artisan sipus:uji-balapan`):**
+   - Menjalankan multi-proses konkuren menggunakan `Process::pool` untuk membuktikan secara empiris bahwa buku stok 1 yang diperebutkan serentak hanya dapat dipinjam tepat 1 kali.
 
 ---
 
-## 4. Panduan Instalasi & Menjalankan Aplikasi
+## 2. Teknologi dan Versi
 
-Ikuti langkah-langkah berikut untuk menjalankan proyek dari repositori bersih:
+| Komponen | Spesifikasi / Versi | Catatan Lingkungan |
+|---|---|---|
+| **Sistem Operasi** | Windows 10/11 64-bit | Lingkungan lokal pengembang |
+| **Server Stack** | Laragon 6.0.0 Full | Apache 2.4.54 / Nginx & MySQL 8.0.30 |
+| **PHP Runtime** | PHP 8.2+ / PHP 8.5.11 | Ekstensi aktif: `pdo_mysql`, `mbstring`, `openssl`, `curl` |
+| **Database Engine** | MySQL 8.x / MariaDB (InnoDB Storage Engine) | Database utama: `sipus_del`, Database tes: `sipus_del_test` |
+| **Framework** | Laravel Framework 11.x | Arsitektur MVC, Service Layer, Custom Exceptions |
+| **Frontend Framework**| Bootstrap 5.3.3 & Bootstrap Icons 1.11.3 | Desain responsif, Palet warna Del Royal Purple (`#4C1D95`) |
+| **Testing Engine** | PHPUnit 11.x & Laravel Testing Suite | 37 tests (117 assertions) lolos 100% |
 
+---
+
+## 3. Panduan Instalasi dan Menjalankan Aplikasi dari Nol
+
+Berikut langkah instalasi lengkap dari repositori bersih pada lingkungan Laragon:
+
+### Langkah 1: Kloning Repositori & Masuk Direktori
+Buka terminal Laragon (Cmder / PowerShell):
 ```bash
-# 1. Masuk ke direktori proyek
-cd c:\laragon\www\ppw-2026-week5-12S24015
+cd C:\laragon\www
+git clone https://github.com/LucasPardede/ppw-2026-week5-12S24015.git
+cd ppw-2026-week5-12S24015
+git checkout week6-db-session
+```
 
-# 2. Pasang dependensi PHP melalui Composer
+### Langkah 2: Instalasi Dependensi PHP
+```bash
 composer install
-
-# 3. Siapkan berkas konfigurasi lingkungan
-cp .env.example .env
-
-# 4. Generate Application Encryption Key
-php artisan key:generate
-
-# 5. Jalankan migrasi basis data dan seeder mock data realistis
-php artisan migrate:fresh --seed
-
-# 6. Pasang dependensi Node dan kompilasi aset frontend via Vite
-npm install
-npm run build
-
-# 7. Jalankan server pengembangan bawaan Artisan
-php artisan serve
 ```
 
-Akses aplikasi pada peramban melalui alamat: **`http://127.0.0.1:8000`**
-
----
-
-## 5. Model Data & Diagram Entitas Relasional (ERD)
-
-Struktur tabel relasional berversi dirancang tanpa menulis SQL manual, menggunakan Laravel Migration Schema Builder:
-
-```
-[ users ]
-  - id (PK)
-  - name (varchar)
-  - email (varchar, unique)
-  - nim (varchar, unique, nullable)
-  - role (varchar, default: 'mahasiswa')
-  - password (varchar, hashed, nullable)
-  - timestamps
-
-[ kategoris ]
-  - id (PK)
-  - kode_kategori (varchar(10), unique)
-  - nama_kategori (varchar(100))
-  - timestamps
-
-[ bukus ]
-  - id (PK)
-  - isbn (varchar(20), unique)
-  - judul (varchar(200), index)
-  - penulis (varchar(150))
-  - penerbit (varchar(100))
-  - tahun_terbit (integer)
-  - kategori_id (FK -> kategoris.id, ON DELETE RESTRICT)
-  - stok (integer, default: 0)
-  - sinopsis (text, nullable)
-  - timestamps
-
-[ peminjamans ]
-  - id (PK)
-  - user_id (FK -> users.id, ON DELETE RESTRICT)
-  - buku_id (FK -> bukus.id, ON DELETE RESTRICT)
-  - tanggal_pinjam (date)
-  - jatuh_tempo (date)
-  - tanggal_kembali (date, nullable)
-  - perpanjangan (integer, default: 0)
-  - status (varchar(20), default: 'dipinjam')
-  - denda (integer, default: 0)
-  - denda_lunas (boolean, default: false)
-  - timestamps
-  - INDEX: (user_id, status)
-```
-
-### Relasi Eloquent Antar Model:
-- **Kategori &rarr; Buku:** `One-to-Many` (`Kategori::hasMany(Buku::class)`)
-- **Buku &rarr; Kategori:** `Many-to-One` (`Buku::belongsTo(Kategori::class)`)
-- **Buku &rarr; Peminjaman:** `One-to-Many` (`Buku::hasMany(Peminjaman::class)`)
-- **User &rarr; Peminjaman:** `One-to-Many` (`User::hasMany(Peminjaman::class)`)
-- **Peminjaman &rarr; Buku:** `Many-to-One` (`Peminjaman::belongsTo(Buku::class)`)
-- **Peminjaman &rarr; User:** `Many-to-One` (`Peminjaman::belongsTo(User::class)`)
-
-### Keputusan Integritas Referensial (`restrictOnDelete`):
-Kategori yang masih memiliki buku terkait **dilarang dihapus** untuk menjaga integritas bibliografi katalog. Begitu juga dengan buku yang memiliki riwayat transaksi peminjaman dilarang dihapus dari sistem.
-
----
-
-## 6. Tabel Rute & 7 Aksi Baku CRUD RESTful Resource
-
-Sesuai instruksi Modul Praktikum Hal. 2, 5, dan 7, seluruh 7 aksi baku CRUD didaftarkan menggunakan `Route::resource()` dengan **Implicit Route Model Binding**:
-
-| Metode HTTP | URI Endpoint | Nama Rute | Controller & Method | Deskripsi Aksi RESTful |
-|---|---|---|---|---|
-| `GET` | `/` | - | Closure redirect | Pengalihan otomatis sesuai sesi dan peran |
-| `GET` | `/login` | `login` | `AuthController@showLogin` | Formulir login terpadu CIS / Admin |
-| `POST` | `/login` | `login.post` | `AuthController@login` | Pemrosesan login dengan rate limiting |
-| `POST` | `/logout` | `logout` | `AuthController@logout` | Keluar dari sesi aplikasi |
-| **Koleksi Buku** | | | | |
-| `GET` | `/buku` | `buku.index` | `BukuController@index` | **1/7: Index** — Daftar buku (Eager Loading + Filter + Paginate) |
-| `GET` | `/buku/create` | `buku.create` | `BukuController@create` | **2/7: Create** — Form tambah buku baru |
-| `POST` | `/buku` | `buku.store` | `BukuController@store` | **3/7: Store** — Simpan buku baru (Validasi server ketat) |
-| `GET` | `/buku/{buku}` | `buku.show` | `BukuController@show` | **4/7: Show** — Detail buku (Route Model Binding) |
-| `GET` | `/buku/{buku}/edit` | `buku.edit` | `BukuController@edit` | **5/7: Edit** — Form ubah data buku |
-| `PUT` | `/buku/{buku}` | `buku.update` | `BukuController@update` | **6/7: Update** — Perbarui data buku (`Rule::unique()->ignore`) |
-| `DELETE` | `/buku/{buku}` | `buku.destroy` | `BukuController@destroy` | **7/7: Destroy** — Hapus buku (Diproteksi riwayat peminjaman) |
-| **Kategori Buku** | | | | |
-| `GET` | `/kategori` | `kategori.index` | `KategoriController@index` | **1/7: Index** — Daftar kategori (`withCount('bukus')`) |
-| `GET` | `/kategori/create` | `kategori.create` | `KategoriController@create` | **2/7: Create** — Form tambah kategori baru |
-| `POST` | `/kategori` | `kategori.store` | `KategoriController@store` | **3/7: Store** — Simpan kategori baru |
-| `GET` | `/kategori/{kategori}` | `kategori.show` | `KategoriController@show` | **4/7: Show** — Detail kategori dan buku terkait |
-| `GET` | `/kategori/{kategori}/edit` | `kategori.edit` | `KategoriController@edit` | **5/7: Edit** — Form ubah data kategori |
-| `PUT` | `/kategori/{kategori}` | `kategori.update` | `KategoriController@update` | **6/7: Update** — Perbarui data kategori |
-| `DELETE` | `/kategori/{kategori}` | `kategori.destroy` | `KategoriController@destroy` | **7/7: Destroy** — Hapus kategori (Ditolak jika ada buku) |
-| **Portal Mahasiswa** | | | | |
-| `GET` | `/katalog` | `katalog.index` | `KatalogController@index` | Katalog kartu koleksi buku mahasiswa |
-| `GET` | `/katalog/{buku}` | `katalog.show` | `KatalogController@show` | Detail buku katalog mahasiswa |
-| `POST` | `/katalog/{buku}/pinjam` | `katalog.pinjam` | `PeminjamanController@pinjam` | Transaksi peminjaman buku mahasiswa |
-| `GET` | `/pinjaman` | `pinjaman.index` | `PeminjamanController@indexMahasiswa`| Daftar pinjaman aktif & riwayat pengembalian |
-| `PATCH` | `/pinjaman/{peminjaman}/perpanjang` | `pinjaman.perpanjang` | `PeminjamanController@perpanjang` | Perpanjangan pinjaman (1x 7 hari) |
-| **Panel Admin Tambahan** | | | | |
-| `GET` | `/admin/dashboard` | `admin.dashboard` | `DashboardController@index` | Analitik, buku populer, stok menipis |
-| `GET` | `/admin/peminjaman` | `admin.peminjaman.index` | `PeminjamanController@indexAdmin` | Kelola seluruh sirkulasi peminjaman |
-| `PATCH`| `/admin/peminjaman/{peminjaman}/kembali`| `admin.peminjaman.kembali`| `PeminjamanController@kembalikan` | Catat pengembalian & hitung denda |
-| `PATCH`| `/admin/peminjaman/{peminjaman}/lunas` | `admin.peminjaman.lunas`| `PeminjamanController@tandaiLunas` | Tandai denda lunas |
-| `GET` | `/admin/mahasiswa` | `admin.mahasiswa.index` | `MahasiswaController@index` | Daftar akun mahasiswa & status denda |
-| `GET` | `/admin/mahasiswa/{user}` | `admin.mahasiswa.show` | `MahasiswaController@show` | Riwayat transaksi per mahasiswa |
-| `GET` | `/admin/laporan` | `admin.laporan.index` | `LaporanController@index` | Laporan sirkulasi berfilter tanggal/status |
-| `GET` | `/admin/laporan/export` | `admin.laporan.export` | `LaporanController@exportCsv` | Ekspor laporan sirkulasi ke berkas CSV |
-| **Pengumuman Perpustakaan** | | | | |
-| `GET` | `/pengumuman` | `pengumuman.index` | `PengumumanController@indexMahasiswa`| Daftar pengumuman aktif portal mahasiswa |
-| `GET` | `/pengumuman/{pengumuman}` | `pengumuman.show` | `PengumumanController@showMahasiswa` | Detail pengumuman portal mahasiswa |
-| `GET` | `/admin/pengumuman` | `admin.pengumuman.index` | `PengumumanController@indexAdmin` | Manajemen pengumuman administrator |
-| `GET` | `/admin/pengumuman/create`| `admin.pengumuman.create` | `PengumumanController@create` | Form tambah pengumuman |
-| `POST` | `/admin/pengumuman` | `admin.pengumuman.store` | `PengumumanController@store` | Simpan pengumuman baru |
-| `GET` | `/admin/pengumuman/{pengumuman}` | `admin.pengumuman.show` | `PengumumanController@showAdmin` | Detail pengumuman administrator |
-| `GET` | `/admin/pengumuman/{pengumuman}/edit`| `admin.pengumuman.edit` | `PengumumanController@edit` | Form edit pengumuman |
-| `PUT` | `/admin/pengumuman/{pengumuman}` | `admin.pengumuman.update` | `PengumumanController@update` | Perbarui pengumuman |
-| `DELETE`| `/admin/pengumuman/{pengumuman}`| `admin.pengumuman.destroy`| `PengumumanController@destroy`| Hapus pengumuman |
-| `PATCH` | `/admin/pengumuman/{pengumuman}/toggle-pin`| `admin.pengumuman.pin`| `PengumumanController@togglePin`| Sematkan/lepas pin pengumuman |
-
----
-
-## 7. Pembuktian Audit Kinerja Kueri SQL: Mitigasi N+1 Query Problem
-
-Sesuai indikator ketercapaian terukur dan instruksi **LAB 4** pada modul praktikum:
-1. Listener `DB::listen` dipasang pada `app/Providers/AppServiceProvider.php`:
-   ```php
-   public function boot(): void
-   {
-       Paginator::useBootstrapFive();
-
-       DB::listen(function ($query) {
-           Log::info(sprintf(
-               "[SQL AUDIT] (%.2f ms) %s", $query->time, $query->sql
-           ));
-       });
-   }
-   ```
-2. Pengujian dilakukan untuk membandingkan eksekusi kueri pada 10 data buku:
-
-### A. SEBELUM Mitigasi (Simulasi Lazy Loading / N+1 Problem)
-Ketika mengambil 10 buku dan memanggil relasi kategorinya secara terpisah (`$buku->kategori->nama_kategori`):
-```sql
--- Kueri 1: Mengambil daftar buku
-[SQL AUDIT] (2.05 ms) select * from "bukus" order by "created_at" desc limit 10
-
--- Kueri 2 - 11: Dieksekusi berulang sebanyak N (10 kali) untuk setiap baris buku!
-[SQL AUDIT] (0.36 ms) select * from "kategoris" where "kategoris"."id" = 1 limit 1
-[SQL AUDIT] (0.24 ms) select * from "kategoris" where "kategoris"."id" = 1 limit 1
-[SQL AUDIT] (0.15 ms) select * from "kategoris" where "kategoris"."id" = 1 limit 1
-[SQL AUDIT] (0.19 ms) select * from "kategoris" where "kategoris"."id" = 1 limit 1
-[SQL AUDIT] (0.15 ms) select * from "kategoris" where "kategoris"."id" = 2 limit 1
-[SQL AUDIT] (0.15 ms) select * from "kategoris" where "kategoris"."id" = 2 limit 1
-[SQL AUDIT] (0.10 ms) select * from "kategoris" where "kategoris"."id" = 2 limit 1
-[SQL AUDIT] (0.16 ms) select * from "kategoris" where "kategoris"."id" = 2 limit 1
-[SQL AUDIT] (0.10 ms) select * from "kategoris" where "kategoris"."id" = 3 limit 1
-[SQL AUDIT] (0.14 ms) select * from "kategoris" where "kategoris"."id" = 3 limit 1
-```
-**Total Kueri: 11 Kueri (1 + N)**. Jika terdapat 100 data buku, server akan mengeksekusi 101 kueri SQL yang memicu pemborosan I/O dan penurunan drastis performa aplikasi.
-
----
-
-### B. SESUDAH Mitigasi (Eager Loading dengan `with('kategori')`)
-Pada controller SIPUS-Del (`Buku::with('kategori')->latest()->paginate(10)`):
-```sql
--- Kueri 1: Mengambil daftar buku (termasuk pagination limit 10)
-[SQL AUDIT] (0.23 ms) select * from "bukus" order by "created_at" desc limit 10
-
--- Kueri 2: Mengambil seluruh kategori terkait secara terpadu melalui klausa IN (...)
-[SQL AUDIT] (0.21 ms) select * from "kategoris" where "kategoris"."id" in (1, 2, 3)
-```
-*(Catatan: Pada pagination, terdapat kueri `select count(*) as aggregate from "bukus"` untuk menghitung total halaman).*
-
-**Hasil Analisis:**  
-Kueri SQL yang dieksekusi **tetap konstan (tepat 2 kueri data)** terlepas dari berapa banyak baris buku yang ditampilkan di halaman. N+1 Query Problem **berhasil dimitigasi 100%**.
-
----
-
-## 8. Hasil Pengujian Otomatis (PHPUnit Feature Tests)
-
-Seluruh skenario pengujian fungsional dan aturan bisnis diuji secara otomatis melalui test suite `tests/Feature/SipusDelTest.php` dan `tests/Feature/PengumumanTest.php`:
-
+### Langkah 3: Konfigurasi Lingkungan (`.env`)
+Salin berkas template lingkungan:
 ```bash
-php artisan test
+cp .env.example .env
+```
+Buka berkas `.env` dan pastikan konfigurasi MySQL disesuaikan dengan kredensial Laragon Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sipus_del
+DB_USERNAME=root
+DB_PASSWORD=
+
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+CACHE_STORE=database
+QUEUE_CONNECTION=database
 ```
 
-**Keluaran Uji (Test Results):**
-```
-   PASS  Tests\Unit\ExampleTest
-  ✓ that true is true
-
-   PASS  Tests\Feature\ExampleTest
-  ✓ the application returns a successful response
-
-   PASS  Tests\Feature\PengumumanTest
-  ✓ mahasiswa can view active announcements
-  ✓ mahasiswa can view announcement detail
-  ✓ mahasiswa cannot view inactive announcement
-  ✓ mahasiswa forbidden from admin announcement routes
-  ✓ admin can view announcement management index
-  ✓ admin can create new announcement
-  ✓ admin can update announcement
-  ✓ admin can delete announcement
-  ✓ admin can toggle pin announcement
-
-   PASS  Tests\Feature\SipusDelTest
-  ✓ login mahasiswa simulasi berhasil ke katalog
-  ✓ login admin password salah ditolak
-  ✓ login admin password benar masuk ke dashboard
-  ✓ mahasiswa dilarang mengakses panel admin 403
-  ✓ admin bisa menambah kategori
-  ✓ kode kategori duplikat ditolak
-  ✓ kategori tidak bisa dihapus jika masih memiliki buku
-  ✓ tambah buku validasi judul minimal 5 karakter
-  ✓ admin bisa tambah buku berhasil
-  ✓ buku tidak bisa dihapus jika memiliki riwayat peminjaman
-  ✓ mahasiswa meminjam buku mengurangi stok
-  ✓ mahasiswa tidak bisa meminjam buku yang sama dua kali bersamaan
-  ✓ perpanjangan buku maksimal 1 kali
-  ✓ admin mencatat pengembalian dan stok bertambah
-
-  Tests:    25 passed (70 assertions)
-  Duration: 3.76s
+### Langkah 4: Pembuatan Basis Data di MySQL Laragon
+Jalankan klien MySQL Laragon atau DBeaver:
+```sql
+CREATE DATABASE IF NOT EXISTS sipus_del CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sipus_del_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Daftar aspek yang teruji dan lolos otomatis:
-1. `test_login_mahasiswa_simulasi_berhasil_ke_katalog` (Autentikasi CIS Mock)
-2. `test_login_admin_password_salah_ditolak` (Keamanan Password Admin)
-3. `test_login_admin_password_benar_masuk_ke_dashboard` (Otorisasi Sesi Admin)
-4. `test_mahasiswa_dilarang_mengakses_panel_admin_403` (Otorisasi Role Middleware)
-5. `test_admin_bisa_menambah_kategori` (Store Kategori)
-6. `test_kode_kategori_duplikat_ditolak` (Validasi Keunikan Kategori)
-7. `test_kategori_tidak_bisa_dihapus_jika_masih_memiliki_buku` (Proteksi Integritas Relasi Kategori)
-8. `test_tambah_buku_validasi_judul_minimal_5_karakter` (Validasi Panjang String)
-9. `test_admin_bisa_tambah_buku_berhasil` (Store Buku)
-10. `test_buku_tidak_bisa_dihapus_jika_memiliki_riwayat_peminjaman` (Proteksi Relasi Peminjaman)
-11. `test_mahasiswa_meminjam_buku_mengurangi_stok` (Transaksi Atomic & Dekremen Stok)
-12. `test_mahasiswa_tidak_bisa_meminjam_buku_yang_sama_dua_kali_bersamaan` (Aturan Bisnis Peminjaman)
-13. `test_perpanjangan_buku_maksimal_1_kali` (Aturan Perpanjangan 7 Hari)
-14. `test_admin_mencatat_pengembalian_dan_stok_bertambah` (Perhitungan Denda Otomatis & Penambahan Stok)
-15. `test_pengumuman_suite` (9 skenario lengkap CRUD & otorisasi pengumuman mahasiswa & admin)
+### Langkah 5: Generate Application Key
+```bash
+php artisan key:generate
+```
+
+### Langkah 6: Eksekusi Migrasi & Seeder Idempoten
+```bash
+php artisan migrate:fresh --seed
+```
+*Catatan: Seeder aman dijalankan berulang kali (`php artisan db:seed`) karena seluruh operasi telah menerapkan prinsip idempoten.*
+
+### Langkah 7: Menjalankan Aplikasi
+Aplikasi dapat diakses langsung melalui:
+- **Virtual Host Laragon:** `http://ppw-2026-week5-12s24015.test` atau `http://localhost/ppw-2026-week5-12S24015/public`
+- **Atau Artisan Development Server:**
+  ```bash
+  php artisan serve
+  ```
+  Akses di peramban: `http://127.0.0.1:8000`
 
 ---
 
-## 9. Matriks Keterlacakan Rubrik Penilaian (Sangat Baik 85-100)
+## 4. Tabel Akun Uji Coba (Test Credentials)
 
-| Kriteria Evaluasi | Bobot | Bukti Implementasi pada Proyek | Status Ketercapaian |
-|---|---|---|---|
-| **Arsitektur MVC & Routing RESTful** | 20% | Pemisahan Model (`app/Models`), View (`resources/views`), Controller (`app/Http/Controllers`) tegas tanpa logika SQL di Blade. 7 aksi baku CRUD terdaftar via `Route::resource('buku', ...)` & `Route::resource('kategori', ...)`. Implicit Route Model Binding diterapkan di semua method `show`, `edit`, `update`, `destroy`. | **Sangat Baik (100%)** |
-| **Model Relasional & Eloquent ORM** | 25% | Skema migrasi rapi berversi. Relasi `hasMany` dan `belongsTo` terdefinisi presisi. Seluruh model diproteksi atribut `$fillable`. Eager Loading (`with('kategori')` dan `with(['buku', 'user'])`) aktif di seluruh tampilan index guna meniadakan N+1 problem. | **Sangat Baik (100%)** |
-| **Validasi Input & Keamanan Web** | 20% | Validasi server-side lengkap dan ketat (`unique`, `min:5`, `max`, `exists`, `between`, `integer`). Seluruh form menyertakan direktif `@csrf` dan method spoofing (`@method('PUT')`, `@method('DELETE')`, `@method('PATCH')`). Dilindungi dari XSS via kurung kurawal ganda Blade dan SQLi via PDO binding. | **Sangat Baik (100%)** |
-| **Blade Templating & Desain UI** | 20% | Master Shell Layout `<x-layout>` bertema Del Royal Purple (`#4C1D95`), navigasi modular `<x-nav-admin>` & `<x-nav-mahasiswa>`, flash alert session interaktif, pagination Bootstrap 5 aktif, dan seluruh perulangan data kosong ditangani direktif aman `@forelse ... @empty`. | **Sangat Baik (100%)** |
-| **Seeders, Logging, Git & Laporan** | 15% | Seeder realistis dengan Faker menghasilkan 6 kategori, 21 koleksi buku, akun admin, akun mahasiswa, dan mock riwayat peminjaman. Log audit kueri SQL terpasang di `AppServiceProvider`. Commit Git berstandar Conventional Commits. Dokumentasi README lengkap dan terperinci. | **Sangat Baik (100%)** |
-
----
-
-## 10. Konvensi Commit Git
-
-Repositori menggunakan standar pesan commit **Conventional Commits**:
-- `feat(migration): create kategoris and bukus tables schema`
-- `feat(model): define relationships and fillable attributes`
-- `feat(controller): implement restful actions and server validation`
-- `feat(views): construct blade component layout and crud templates`
-- `perf(eager-loading): optimize sql queries to prevent n+1 problem`
-- `feat(auth-peminjaman): implement cis authentication and borrowing lifecycle`
-- `docs: update readme with sql audit proof, test scenarios and system documentation`
+| Peran (*Role*) | Nama Pengguna | Alamat Email | Kata Sandi | Status Koleksi & Skenario Uji |
+|---|---|---|---|---|
+| **Admin Pustakawan** | Pustakawan Del | `pustakawan@del.ac.id` | `password123` | **Akun Wajib Modul.** Akses penuh dashboard, sirkulasi, verifikasi denda, dan audit log. |
+| **Admin Sistem** | Administrator Del | `admin@del.ac.id` | `password123` | Akun administrator sekunder untuk pengujian. |
+| **Mahasiswa (Aktif)** | Lucas Pardede | `lucas.pardede@del.ac.id` | `password123` | NIM: `12S24015`. Memiliki pinjaman aktif tepat waktu dan pinjaman kuota. |
+| **Mahasiswa (Terlambat)**| Budi Santoso | `budi.santoso@del.ac.id` | `password123` | NIM: `12S24001`. Memiliki pinjaman aktif melewati batas tempo (denda berjalan). |
+| **Mahasiswa (Denda)** | Johannes Hutapea | `johannes.hutapea@del.ac.id` | `password123` | NIM: `12S24003`. Memiliki pinjaman dikembalikan dengan status denda belum lunas. |
+| **Mahasiswa (Stok 0)** | Daniel Siahaan | `daniel.siahaan@del.ac.id` | `password123` | NIM: `12S24005`. Meminjam eksemplar tunggal buku stok 1 (*The Pragmatic Programmer*) sehingga stok menjadi 0. |
 
 ---
 
-*Dikembangkan dengan penuh dedikasi untuk memenuhi standar keunggulan akademik Institut Teknologi Del.*
+## 5. Entity Relationship Diagram (ERD) Mermaid
+
+Berikut adalah diagram relasi entitas lengkap 6 tabel pada SIPUS-Del Tahap 2:
+
+```mermaid
+erDiagram
+    users ||--o{ peminjamans : "memiliki"
+    users ||--o{ pengumumans : "menulis"
+    users ||--o{ riwayat_transaksis : "menjalankan"
+    kategoris ||--o{ bukus : "mengklasifikasikan"
+    bukus ||--o{ peminjamans : "dipinjam_dalam"
+    peminjamans ||--o{ riwayat_transaksis : "diaudit_dalam"
+
+    users {
+        bigint id PK
+        string name "150"
+        string email UK "255"
+        string nim UK "20, nullable"
+        string role "enum: admin, mahasiswa"
+        string password
+        string remember_token "100, nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    kategoris {
+        bigint id PK
+        string kode_kategori UK "10"
+        string nama_kategori "100"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    bukus {
+        bigint id PK
+        string isbn UK "20"
+        string judul "200"
+        string penulis "150"
+        string penerbit "150"
+        year tahun_terbit
+        bigint kategori_id FK
+        int unsigned stok "default 0"
+        text sinopsis "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    peminjamans {
+        bigint id PK
+        string kode_pinjam UK "30"
+        bigint user_id FK
+        bigint buku_id FK "CASCADE ON DELETE"
+        string nim_peminjam "20"
+        string nama_peminjam "150"
+        date tanggal_pinjam
+        date tanggal_jatuh_tempo
+        date tanggal_kembali "nullable"
+        int perpanjangan "default 0"
+        string status "dipinjam, dikembalikan"
+        decimal denda "10,2 default 0"
+        boolean denda_lunas "default false"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    pengumumans {
+        bigint id PK
+        string judul "200"
+        text konten
+        string kategori "informasi, jadwal, peraturan"
+        boolean is_aktif "default true"
+        boolean is_pinned "default false"
+        bigint author_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    riwayat_transaksis {
+        bigint id PK
+        bigint peminjaman_id FK "nullable, ON DELETE SET NULL"
+        bigint aktor_user_id FK "nullable, ON DELETE SET NULL"
+        string aksi "30 (pinjam, kembali, perpanjang, lunas)"
+        text keterangan "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+```
+
+---
+
+## 6. Penjelasan Transaksi ACID dan Locking Strategy
+
+### 6.1 Alur Transaksi Peminjaman (`PeminjamanService::pinjam`)
+Proses peminjaman dibungkus secara utuh di dalam `DB::transaction(callback, 3)` (maksimal 3 kali percobaan ulang saat terjadi deadlock di level engine):
+1. **Penguncian Baris Buku:** `Buku::where('id', $bukuId)->lockForUpdate()->firstOrFail();` mengeluarkan kueri SQL `SELECT * FROM bukus WHERE id = ? FOR UPDATE`. Seluruh transaksi concurrent lain yang mencoba mengakses atau mengubah baris buku ini akan diantrekan (*blocked*) hingga transaksi pertama commit atau rollback.
+2. **Pemeriksaan Stok:** Jika `stok < 1`, transaksi seketika melempar `StokHabisException` dan memicu **otomatis rollback**. Stok tidak pernah berkurang dan tidak ada data peminjaman siluman.
+3. **Pemeriksaan Konsistensi Bisnis:** Memeriksa keberadaan NIM, mencegah NIM yang sama meminjam buku yang sama dua kali secara aktif (`PeminjamanGandaException`), memeriksa batas kuota 3 buku aktif (`BatasPinjamTercapaiException`), pinjaman lewat jatuh tempo (`PinjamanTerlambatException`), dan tunggakan denda (`DendaBelumLunasException`).
+4. **Mutasi Data Atomik:** `$buku->decrement('stok');` dan `Peminjaman::create([...])` dengan status `dipinjam`.
+5. **Pencatatan Audit Trail:** `RiwayatTransaksi::create([...])` dicatat dalam unit transaksi yang sama.
+
+### 6.2 Alur Transaksi Pengembalian (`PeminjamanService::kembali`)
+Untuk mencegah **Deadlock** (*kondisi dua transaksi saling menunggu kunci baris yang berbeda*), SIPUS-Del menerapkan **Urutan Penguncian Konsisten (Deterministic Lock Ordering)**:
+1. Peminjaman dibaca tanpa lock untuk mengetahui `buku_id`.
+2. Di dalam transaksi: **Baris BUKU dikunci terlebih dahulu** (`Buku::lockForUpdate`).
+3. **Baris PEMINJAMAN dikunci berikutnya** (`Peminjaman::lockForUpdate`).
+4. Status diverifikasi ulang di dalam lock. Jika status sudah `dikembalikan`, dilempar `PeminjamanSudahKembaliException`.
+5. Denda dihitung secara presisi berdasarkan selisih hari tanggal pengembalian dan `tanggal_jatuh_tempo`.
+6. `$buku->increment('stok');` dan update status peminjaman menjadi `dikembalikan`.
+7. Catat audit trail pengembalian ke `riwayat_transaksis`.
+
+### 6.3 Mengapa `stok` Diubah Menjadi Unsigned Integer?
+Pada migration `2026_10_17_000002_make_bukus_stok_unsigned`, kolom `stok` diubah menjadi `unsignedInteger default 0`. Hal ini memberikan jaminan **Defense in Depth**: apabila terjadi anomali logika perangkat lunak, mesin MySQL InnoDB pada level skema fisik akan memicu error `Out of range value for column 'stok'` dan menolak mutasi yang menghasilkan angka minus.
+
+---
+
+## 7. Penjelasan Sesi, Cookie, dan Keamanan
+
+### 7.1 Regenerasi ID Sesi (`session()->regenerate()`)
+Saat pengguna berhasil login, aplikasi memanggil `$request->session()->regenerate()`. Hal ini mengubah ID string sesi di server dan cookie peramban. Jika penyerang sebelumnya menanamkan ID sesi tertentu (*Session Fixation Attack*), sesi lama tidak lagi valid dan penyerang tidak dapat membajak hak akses pengguna yang baru masuk.
+
+### 7.2 Invalidation Sesi Saat Logout
+Saat logout, aplikasi memanggil:
+- `Auth::logout()`: Mengosongkan data autentikasi user saat ini.
+- `$request->session()->invalidate()`: Menghapus seluruh data sesi dari basis data tabel `sessions`.
+- `$request->session()->regenerateToken()`: Mengacak ulang token CSRF agar token lama tidak dapat dieksploitasi ulang.
+
+### 7.3 Cookie `del_last_user_email` dengan Flag `HttpOnly` dan `SameSite=Lax`
+Cookie email terakhir diantrekan melalui:
+```php
+Cookie::queue(
+    'del_last_user_email',
+    $email,
+    10080, // Durasi 7 hari
+    '/',
+    null,
+    false, // secure=false pada localhost/http
+    true,  // HttpOnly = true
+    false,
+    'lax'  // SameSite = lax
+);
+```
+- **`HttpOnly = true`:** Melarang skrip JavaScript peramban (misal `document.cookie`) membaca nilai cookie. Hal ini secara efektif melindungi cookie dari pencurian akibat celah Cross-Site Scripting (XSS).
+- **`SameSite = 'lax'`:** Menginstruksikan peramban untuk tidak menyertakan cookie ini pada permintaan lintas domain berbahaya (*cross-site POST*), yang memitigasi serangan Cross-Site Request Forgery (CSRF).
+
+### 7.4 Mengapa `SESSION_SECURE_COOKIE` Tidak Aktif pada `http://localhost`?
+Flag `Secure` pada cookie mewajibkan peramban hanya mengirimkan cookie melalui koneksi terenkripsi HTTPS / TLS. Pada lingkungan pengembangan lokal yang menggunakan protokol `http://` (seperti `http://localhost:8000` atau `http://localhost`), jika flag `Secure` diaktifkan, peramban (Chrome/Firefox/Edge) akan menolak menyimpan atau menolak mengirimkan kembali cookie sesi. Akibatnya, setiap kali pengguna me-refresh halaman atau berpindah tautan, sesi login akan langsung hilang (*logged out*). Oleh karena itu, flag `Secure` dinonaktifkan pada lingkungan lokal dan hanya diaktifkan pada lingkungan produksi ber-HTTPS.
+
+---
+
+## 8. Bukti Pengujian dan Tangkapan Layar (Screenshots)
+
+Seluruh tangkapan layar verifikasi ditempatkan pada direktori `docs/screenshots/`:
+
+| No | Berkas Tangkapan Layar | Deskripsi & Bukti Verifikasi |
+|---|---|---|
+| 01 | `docs/screenshots/01-login.png` | Form Login SIPUS-Del menampilkan label "Akun CIS", isian email otomatis dari Cookie, dan opsi "Ingat email saya". |
+| 02 | `docs/screenshots/02-katalog-statistik.png` | Katalog portal mahasiswa menampilkan 4 kartu analitik koleksi (`DB::table`), filter kategori, dan panel "Pencarian terakhir". |
+| 03 | `docs/screenshots/03-pinjam-berhasil.png` | Notifikasi alert sukses peminjaman buku dengan nomor `kode_pinjam` acak unik (PJM-...) dan tanggal jatuh tempo 7 hari. |
+| 04 | `docs/screenshots/04-pinjam-stok-0-ditolak.png` | Pembuktian ACID: Peminjaman buku stok 0 ditolak (`StokHabisException`), stok tidak minus, dan peminjaman dibatalkan (rollback). |
+| 05 | `docs/screenshots/05-pinjam-ganda-ditolak.png` | Pembuktian integritas: Mahasiswa dengan NIM sama dilarang meminjam 2 eksemplar buku yang sama secara bersamaan. |
+| 06 | `docs/screenshots/06-kembali-berhasil.png` | Panel admin mencatat pengembalian buku, penambahan kembali stok ke rak secara real-time, dan audit denda. |
+| 07 | `docs/screenshots/07-skema-peminjamans-dbeaver.png` | Tampilan struktur tabel `peminjamans` di DBeaver (kolom `kode_pinjam`, `tanggal_jatuh_tempo`, indeks komposit, dan FK Cascade). |
+| 08 | `docs/screenshots/08-uji-balapan.png` | Bukti terminal eksekusi `php artisan sipus:uji-balapan --proses=5` dengan tabel verifikasi sukses 1 dan ditolak 4. |
+| 09 | `docs/screenshots/09-devtools-cookie-httponly.png` | Inspeksi DevTools (F12) > Application > Cookies membuktikan flag `HttpOnly` tercentang dan `SameSite=Lax`. |
+| 10 | `docs/screenshots/10-akses-ditolak-mahasiswa.png` | Respon HTTP 403 Forbidden saat akun mahasiswa mencoba mengakses rute otorisasi admin (`/admin/dashboard`). |
+| 11 | `docs/screenshots/11-laporan-denda.png` | Halaman laporan sirkulasi admin menampilkan data peminjaman terlambat, status pelunasan denda, dan ekspor CSV. |
+| 12 | `docs/screenshots/12-erd.png` | Visualisasi Diagram Relasi Entitas (ERD) Mermaid 6 tabel relasional. |
+
+> **Panduan Pengambilan Screenshot Tambahan (DBeaver & DevTools):**
+> 1. **DBeaver Skema (07):** Buka DBeaver > koneksi `sipus_del` > Tables > `peminjamans` > tab *Columns* dan tab *Foreign Keys*. Ambil tangkapan layar jendela skema.
+> 2. **DevTools Cookie (09):** Buka `http://localhost/ppw-2026-week5-12S24015/public/login` di browser > tekan `F12` > tab *Application* > menu kiri *Cookies* > klik `http://localhost` > sorot baris `del_last_user_email` dan `sipus_del_session` untuk menunjukkan kolom `HTTPOnly` tercentang.
+> 3. **Uji Balapan (08):** Jalankan `php artisan sipus:uji-balapan --proses=5` di terminal PowerShell dan tangkap layar tabel outputnya.
+
+---
+
+## 9. Tabel Pemetaan Rubrik Evaluasi (S1 — S5)
+
+| Kode Kriteria & Bobot | Indikator Keberhasilan Rubrik | Lokasi Implementasi & Bukti Verifikasi |
+|---|---|---|
+| **S1 (20%)** Skema Tabel `peminjamans` & Relasi | - Kolom `kode_pinjam` string(30) unik format `PJM-YYYYMMDD-XXXXXX`<br>- Kolom `tanggal_jatuh_tempo` menggantikan `jatuh_tempo`<br>- Kolom `nim_peminjam` & `nama_peminjam`<br>- FK `buku_id` dengan `cascadeOnDelete`<br>- Indeks komposit performa | - Migrasi: `database/migrations/2026_10_17_000001_alter_peminjamans_for_week6.php`<br>- Model: `app/Models/Peminjaman.php` (`buatKode()`, scopes, accessor)<br>- Model: `app/Models/Buku.php` relasi `peminjamans()`<br>- SQL Bukti: `docs/bukti-uji.sql` bagian 3 |
+| **S2 (25%)** Transaksi ACID & Locking | - `DB::transaction(..., 3)` pada pinjam & kembali<br>- `lockForUpdate` pada baris buku & peminjaman<br>- Tolak stok 0 & rollback instan<br>- Cegah pinjaman ganda per NIM<br>- Urutan kunci konsisten mencegah deadlock<br>- Unsigned stok di level basis data | - Service: `app/Services/PeminjamanService.php`<br>- Exceptions: `app/Exceptions/StokHabisException.php`, `PeminjamanGandaException.php`, dll.<br>- Migrasi: `database/migrations/2026_10_17_000002_make_bukus_stok_unsigned.php`<br>- Audit Trail: `app/Models/RiwayatTransaksi.php`<br>- Feature Tests: `tests/Feature/AcidPeminjamanTest.php` (U1-U6) |
+| **S3 (15%)** Katalog & Analitik Bebas N+1 | - Eager loading `with('kategori')` & `withCount('peminjamans')`<br>- Filter `when()` dibungkus closure `where(function($q){...})`<br>- 4 Kartu Statistik Sirkulasi via `DB::table()`<br>- Statistik Buku Populer via Query Builder JOIN | - Service: `app/Services/StatistikService.php`<br>- Controller: `app/Http/Controllers/KatalogController.php`<br>- Controller: `app/Http/Controllers/DashboardController.php`<br>- View: `resources/views/katalog/index.blade.php`<br>- Feature Test: `test_u8_halaman_katalog_bebas_dari_masalah_n_plus_1` |
+| **S4 (25%)** Sesi, Cookie, & Keamanan | - `Auth::attempt()` dengan `session()->regenerate()`<br>- Invalidate & regenerateToken saat logout<br>- Middleware otorisasi mutasi data & guest redirect<br>- Cookie `del_last_user_email` HttpOnly + SameSite=Lax<br>- State session `last_search` & `login_timestamp`<br>- Peringatan buku jatuh tempo besok | - Controller: `app/Http/Controllers/AuthController.php`<br>- Bootstrap: `bootstrap/app.php` (`redirectGuestsTo`)<br>- View: `resources/views/auth/login.blade.php`<br>- View: `resources/views/components/nav-mahasiswa.blade.php`<br>- View: `resources/views/mahasiswa/pinjaman.blade.php` |
+| **S5 (15%)** Seeder Idempoten & Bukti Keandalan | - Akun `pustakawan@del.ac.id` / `password123`<br>- Sampel buku stok = 0 dan stok = 1<br>- Konsistensi stok = stok_awal - pinjaman_aktif<br>- Seeder idempoten (`updateOrCreate`/`firstOrCreate`)<br>- Perintah uji balapan konkuren | - Seeders: `database/seeders/UserSeeder.php`, `BukuSeeder.php`, `PeminjamanSeeder.php`, `PengumumanSeeder.php`<br>- Artisan Command: `app/Console/Commands/UjiBalapanCommand.php`<br>- Bukti Uji: `docs/bukti-uji.sql`, `docs/hasil-uji-balapan.txt`<br>- Naskah Presentasi: `docs/naskah-video.md` |
+
+---
+
+## 10. Catatan Keputusan Desain dan Asumsi
+
+1. **Urutan Penguncian Konsisten untuk Menghindari Deadlock:**  
+   Pada skenario transaksi pengembalian buku, jika transaksi A mengunci tabel peminjaman lalu mencoba mengunci tabel buku, sementara transaksi B mengunci tabel buku lalu mencoba mengunci tabel peminjaman, mesin basis data dapat mengalami *deadlock*. SIPUS-Del menetapkan aturan baku: **Tabel buku selalu dikunci terlebih dahulu, baru kemudian tabel peminjaman dikunci**.
+2. **Penutupan Jalur Pembuatan Admin Otomatis:**  
+   Pada implementasi Tahap 1, terdapat celah keamanan di mana email tertentu secara otomatis dibuatkan akun administrator dengan password bawaan jika belum terdaftar. Pada Tahap 2, celah ini ditutup total. Seluruh akun administrator hanya dapat dibuat melalui seeder resmi atau DBA. Pendaftaran otomatis melalui mock CIS hanya diizinkan untuk peran `mahasiswa`.
+3. **Penyelarasan Durasi Pinjam Menjadi 7 Hari:**  
+   Teks lama pada form dan tampilan pengumuman yang menyebutkan durasi pinjam 14 hari telah diselaraskan menjadi **7 hari kalender**, sesuai dengan konfigurasi baku aplikasi `config('perpustakaan.lama_pinjam_hari', 7)`.
+4. **Verifikasi ISBN Koleksi:**  
+   Beberapa data ISBN dari seeder lama yang tidak lazim telah ditandai dengan komentar `[ASUMSI: verifikasi ISBN]` pada `BukuSeeder.php` untuk menjaga transparansi integritas data bibliografi perpustakaan.

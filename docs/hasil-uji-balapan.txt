@@ -1,0 +1,36 @@
+﻿================================================================================
+  SIPUS-DEL: PENGUJIAN RACE CONDITION & ACID ROW LOCKING (lockForUpdate)        
+================================================================================
+Konfigurasi Pengujian:
+- Jumlah Proses Konkuren : 5 proses
+- Penahanan Row Lock     : 0 detik
+
+Γ£ô Buku uji disiapkan: '[TEST ACID] Clean Architecture Under Concurrency' (ID: 25, Stok Awal: 1)
+Γ£ô Disiapkan 5 akun mahasiswa uji unik (NIM berbeda).
+
+Memulai 5 proses paralel secara serentak...
+
++-----------+------------------+----------+------------------+--------------------------------------------------------------------------------------------------------------------------+
+| Worker    | Nama Pengguna    | NIM      | Status Transaksi | Keterangan Eksekusi                                                                                                      |
++-----------+------------------+----------+------------------+--------------------------------------------------------------------------------------------------------------------------+
+| Proses #1 | Tester Balapan 1 | 12S99001 | BERHASIL (200)   | Kode: PJM-20261017-1Z3Y98                                                                                                |
+| Proses #2 | Tester Balapan 2 | 12S99002 | DITOLAK (422)    | StokHabisException: Buku '[TEST ACID] Clean Architecture Under Concurrency' saat ini sedang tidak tersedia (stok habis). |
+| Proses #3 | Tester Balapan 3 | 12S99003 | DITOLAK (422)    | StokHabisException: Buku '[TEST ACID] Clean Architecture Under Concurrency' saat ini sedang tidak tersedia (stok habis). |
+| Proses #4 | Tester Balapan 4 | 12S99004 | DITOLAK (422)    | StokHabisException: Buku '[TEST ACID] Clean Architecture Under Concurrency' saat ini sedang tidak tersedia (stok habis). |
+| Proses #5 | Tester Balapan 5 | 12S99005 | DITOLAK (422)    | StokHabisException: Buku '[TEST ACID] Clean Architecture Under Concurrency' saat ini sedang tidak tersedia (stok habis). |
++-----------+------------------+----------+------------------+--------------------------------------------------------------------------------------------------------------------------+
+
+--------------------------------------------------------------------------------
+  HASIL VERIFIKASI KEANDALAN TRANSAKSI (ACID ATOMICITY & ISOLATION)             
+--------------------------------------------------------------------------------
+- Waktu Eksekusi Total   : 1.62 detik
+- Transaksi Sukses       : 1 peminjaman
+- Transaksi Ditolak      : 4 peminjaman (StokHabisException)
+- Stok Akhir Buku        : 0 (Harus tepat 0, TIDAK BOLEH MINUS)
+- Total Pinjaman Tercatat: 1 baris di database (Harus tepat 1)
+
+  [VERIFIKASI LOLOS]: Transaksi ACID aman dari Race Condition!
+  Hanya 1 proses yang berhasil mendapatkan kunci, sisanya ditolak dengan konsisten.
+--------------------------------------------------------------------------------
+Γ£ô Data uji telah dibersihkan kembali secara otomatis.
+
