@@ -39,7 +39,7 @@
                                        class="form-control border-start-0 ps-1 @error('email') is-invalid @enderror"
                                        id="email"
                                        name="email"
-                                       value="{{ old('email') }}"
+                                       value="{{ old('email', $rememberedEmail ?? request()->cookie('del_last_user_email', '')) }}"
                                        placeholder="nim@students.del.ac.id atau admin@del.ac.id"
                                        required
                                        autocomplete="email"
@@ -95,12 +95,20 @@
                             @enderror
                         </div>
 
-                        {{-- Remember Me --}}
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                            <label class="form-check-label small" for="remember" style="color: #475569;">
-                                Ingat sesi login saya di perangkat ini
-                            </label>
+                        {{-- Remember Email & Session --}}
+                        <div class="mb-4 d-flex flex-column gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember_email" id="remember_email" {{ old('remember_email', !empty($rememberedEmail ?? request()->cookie('del_last_user_email'))) ? 'checked' : '' }}>
+                                <label class="form-check-label small" for="remember_email" style="color: #475569;">
+                                    <i class="bi bi-cookie me-1 text-primary"></i>Ingat email saya di browser ini (Cookie HttpOnly)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                <label class="form-check-label small" for="remember" style="color: #475569;">
+                                    <i class="bi bi-shield-lock me-1 text-secondary"></i>Ingat sesi login saya di perangkat ini
+                                </label>
+                            </div>
                         </div>
 
                         {{-- Submit Button --}}
@@ -123,19 +131,27 @@
                             <div class="d-flex flex-column gap-2 small">
                                 <button type="button"
                                         class="btn btn-outline-secondary text-start border rounded-2 p-2"
-                                        onclick="document.getElementById('email').value='admin@del.ac.id'; document.getElementById('password').value='admin123';"
-                                        title="Isi otomatis kredensial admin">
-                                    <span class="badge bg-warning text-dark me-1">Admin</span>
-                                    <code style="color: #1e1b4b;">admin@del.ac.id</code>
-                                    <span style="color: #64748B;" class="ms-1">/ admin123</span>
+                                        onclick="document.getElementById('email').value='pustakawan@del.ac.id'; document.getElementById('password').value='password123';"
+                                        title="Isi otomatis kredensial pustakawan">
+                                    <span class="badge bg-warning text-dark me-1">Pustakawan</span>
+                                    <code style="color: #1e1b4b;">pustakawan@del.ac.id</code>
+                                    <span style="color: #64748B;" class="ms-1">/ password123</span>
                                 </button>
                                 <button type="button"
                                         class="btn btn-outline-secondary text-start border rounded-2 p-2"
-                                        onclick="document.getElementById('email').value='12S24015@students.del.ac.id'; document.getElementById('password').value='password123';"
-                                        title="Isi otomatis kredensial mahasiswa">
+                                        onclick="document.getElementById('email').value='lucas.pardede@del.ac.id'; document.getElementById('password').value='password123';"
+                                        title="Isi otomatis kredensial Lucas Pardede">
                                     <span class="badge bg-primary me-1">Mahasiswa</span>
-                                    <code style="color: #1e1b4b;">12S24015@students.del.ac.id</code>
-                                    <span style="color: #64748B;" class="ms-1">/ (bebas)</span>
+                                    <code style="color: #1e1b4b;">lucas.pardede@del.ac.id</code>
+                                    <span style="color: #64748B;" class="ms-1">/ password123 (12S24015)</span>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline-secondary text-start border rounded-2 p-2"
+                                        onclick="document.getElementById('email').value='admin@del.ac.id'; document.getElementById('password').value='admin123';"
+                                        title="Isi otomatis kredensial admin sistem">
+                                    <span class="badge bg-secondary me-1">Admin</span>
+                                    <code style="color: #1e1b4b;">admin@del.ac.id</code>
+                                    <span style="color: #64748B;" class="ms-1">/ admin123</span>
                                 </button>
                             </div>
                         </div>

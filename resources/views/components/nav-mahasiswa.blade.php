@@ -56,7 +56,10 @@
                     </div>
                     <div class="text-start">
                         <div class="text-white fw-semibold lh-1" style="font-size: 0.8rem;">{{ Str::limit(Auth::user()->name, 15) }}</div>
-                        <div class="text-white-50" style="font-size: 0.68rem;">{{ Auth::user()->nim ?? 'Mahasiswa' }}</div>
+                        <div class="text-white-50" style="font-size: 0.68rem;">
+                            {{ Auth::user()->nim ?? 'Mahasiswa' }}
+                            @if(session('login_timestamp')) &bull; Masuk: {{ session('login_timestamp') }} @endif
+                        </div>
                     </div>
                 </div>
 

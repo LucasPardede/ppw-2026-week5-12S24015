@@ -23,6 +23,23 @@
         </div>
     </div>
 
+    {{-- FITUR 5: Peringatan Buku Jatuh Tempo Besok --}}
+    @if(isset($jatuhTempoBesok) && $jatuhTempoBesok->count() > 0)
+        <div class="alert alert-warning border-warning d-flex align-items-center gap-3 rounded-4 p-3 mb-4 shadow-sm" role="alert">
+            <i class="bi bi-bell-fill fs-3 text-warning-emphasis flex-shrink-0"></i>
+            <div>
+                <strong class="d-block text-warning-emphasis fs-6">Peringatan: Masa Peminjaman Berakhir Besok!</strong>
+                <span class="small text-dark">
+                    Anda memiliki <strong>{{ $jatuhTempoBesok->count() }} buku</strong> dengan batas waktu pengembalian besok ({{ \Carbon\Carbon::parse($jatuhTempoBesok->first()->tanggal_jatuh_tempo)->format('d M Y') }}):
+                    @foreach($jatuhTempoBesok as $jtb)
+                        <span class="badge bg-warning-subtle text-dark border border-warning">"{{ $jtb->buku->judul }}"</span>{{ !$loop->last ? ' ' : '' }}
+                    @endforeach.
+                    Harap segera lakukan perpanjangan waktu atau kembalikan buku ke loket perpustakaan untuk menghindari denda keterlambatan Rp1.000/hari.
+                </span>
+            </div>
+        </div>
+    @endif
+
     {{-- Bagian 1: Peminjaman Aktif --}}
     <div class="card card-del border-0 shadow-sm mb-5 overflow-hidden">
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">

@@ -60,7 +60,9 @@
                     </div>
                     <div class="text-start">
                         <div class="text-white fw-semibold lh-1" style="font-size: 0.8rem;">{{ Str::limit(Auth::user()->name, 16) }}</div>
-                        <div class="text-warning" style="font-size: 0.68rem;">Pustakawan</div>
+                        <div class="text-warning" style="font-size: 0.68rem;">
+                            Pustakawan @if(session('login_timestamp')) &bull; <span class="text-white-50">Masuk: {{ session('login_timestamp') }}</span> @endif
+                        </div>
                     </div>
                 </div>
 

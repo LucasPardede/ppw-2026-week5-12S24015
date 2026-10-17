@@ -46,7 +46,15 @@ class PeminjamanController extends Controller
             ->latest('tanggal_kembali')
             ->paginate(5);
 
-        return view('mahasiswa.pinjaman', compact('pinjamanAktif', 'riwayat'));
+        // FITUR 5: Peringatan buku yang jatuh tempo besok
+        $besok = \Carbon\Carbon::now()->addDay()->toDateString();
+        $jatuhTempoBesok = Peminjaman::with('buku')
+            ->where('user_id', $user->id)
+            ->where('status', Peminjaman::STATUS_DIPINJAM)
+            ->where('tanggal_jatuh_tempo', $besok)
+            ->get();
+
+        return view('mahasiswa.pinjaman', compact('pinjamanAktif', 'riwayat', 'jatuhTempoBesok'));
     }
 
     /**
