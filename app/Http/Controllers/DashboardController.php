@@ -6,6 +6,7 @@ use App\Models\Buku;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
 use App\Models\Pengumuman;
+use App\Models\RiwayatTransaksi;
 use App\Models\User;
 use Illuminate\View\View;
 
@@ -64,6 +65,12 @@ class DashboardController extends Controller
         $totalPengumuman = Pengumuman::count();
         $pengumumanTerbaru = Pengumuman::with('author')->latest()->take(4)->get();
 
+        // 8 Riwayat Transaksi Audit Log terbaru (ACID Logging)
+        $riwayatTransaksi = RiwayatTransaksi::with(['peminjaman.buku', 'aktor'])
+            ->latest()
+            ->take(8)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalBuku',
             'totalKategori',
@@ -75,7 +82,8 @@ class DashboardController extends Controller
             'stokMenipis',
             'peminjamanTerbaru',
             'totalPengumuman',
-            'pengumumanTerbaru'
+            'pengumumanTerbaru',
+            'riwayatTransaksi'
         ));
     }
 }

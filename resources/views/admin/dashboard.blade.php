@@ -427,4 +427,85 @@
         </div>
     </div>
 
+    {{-- ===== RIWAYAT TRANSAKSI AUDIT LOG (ACID LOGGING) ===== --}}
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+        <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check text-del fs-5"></i>
+                <h2 class="h6 fw-bold mb-0 text-dark">Log Audit Transaksi (ACID Audit Trail)</h2>
+                <span class="badge bg-purple-subtle text-del rounded-pill small ms-1">{{ count($riwayatTransaksi) }} Terbaru</span>
+            </div>
+            <span class="badge bg-light text-muted border" style="font-size: 0.72rem;">
+                <i class="bi bi-lock-fill me-1 text-primary"></i>Pencatatan ACID Terverifikasi
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small" aria-label="Riwayat audit transaksi perpustakaan">
+                <thead class="table-light text-secondary text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.4px;">
+                    <tr>
+                        <th class="ps-3" style="width: 80px;">ID</th>
+                        <th style="width: 120px;">Aksi</th>
+                        <th>Keterangan Transaksi</th>
+                        <th style="width: 180px;">Aktor / Petugas</th>
+                        <th class="text-end pe-3" style="width: 160px;">Waktu Eksekusi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($riwayatTransaksi as $rt)
+                        <tr>
+                            <td class="ps-3 text-muted fw-bold">#{{ $rt->id }}</td>
+                            <td>
+                                @if($rt->aksi === 'pinjam')
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Pinjam
+                                    </span>
+                                @elseif($rt->aksi === 'kembali')
+                                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">
+                                        <i class="bi bi-box-arrow-in-down-left me-1"></i>Kembali
+                                    </span>
+                                @elseif($rt->aksi === 'perpanjang')
+                                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Perpanjang
+                                    </span>
+                                @elseif($rt->aksi === 'lunas')
+                                    <span class="badge bg-info-subtle text-info-emphasis rounded-pill px-2 py-1">
+                                        <i class="bi bi-cash-coin me-1"></i>Pelunasan
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1">
+                                        {{ ucfirst($rt->aksi) }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-dark">{{ $rt->keterangan }}</span>
+                                @if($rt->peminjaman)
+                                    <span class="d-block text-muted" style="font-size: 0.72rem;">
+                                        Ref: {{ $rt->peminjaman->kode_pinjam }} &bull; Buku: {{ $rt->peminjaman->buku->judul ?? '-' }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="bi bi-person-circle text-muted"></i>
+                                    <span class="text-dark">{{ $rt->aktor->name ?? 'Sistem' }}</span>
+                                </div>
+                            </td>
+                            <td class="text-end pe-3 text-muted" style="font-size: 0.75rem;">
+                                {{ $rt->created_at->format('d M Y, H:i:s') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="bi bi-journal-check d-block fs-3 mb-2 opacity-50" aria-hidden="true"></i>
+                                Belum ada riwayat transaksi audit log.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </x-layout>

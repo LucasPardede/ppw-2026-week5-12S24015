@@ -2,16 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BatasPinjamTercapaiException;
+use App\Exceptions\DendaBelumLunasException;
+use App\Exceptions\NimTidakTersediaException;
+use App\Exceptions\PeminjamanGandaException;
+use App\Exceptions\PeminjamanSudahKembaliException;
+use App\Exceptions\PinjamanTerlambatException;
+use App\Exceptions\StokHabisException;
 use App\Models\Buku;
 use App\Models\Peminjaman;
+use App\Services\PeminjamanService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PeminjamanController extends Controller
 {
+    public function __construct(
+        protected PeminjamanService $peminjamanService
+    ) {}
+
     /**
      * Mahasiswa: Menampilkan daftar pinjaman aktif dan riwayat pinjaman milik sendiri.
      */
@@ -22,14 +35,14 @@ class PeminjamanController extends Controller
         // Pinjaman aktif mahasiswa dengan Eager Loading buku & kategorinya
         $pinjamanAktif = Peminjaman::with(['buku.kategori'])
             ->where('user_id', $user->id)
-            ->where('status', 'dipinjam')
+            ->where('status', Peminjaman::STATUS_DIPINJAM)
             ->orderBy('tanggal_jatuh_tempo', 'asc')
             ->get();
 
         // Riwayat pinjaman yang sudah dikembalikan dengan Eager Loading
         $riwayat = Peminjaman::with(['buku.kategori'])
             ->where('user_id', $user->id)
-            ->where('status', 'dikembalikan')
+            ->where('status', Peminjaman::STATUS_DIKEMBALIKAN)
             ->latest('tanggal_kembali')
             ->paginate(5);
 
@@ -37,7 +50,7 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Mahasiswa: Melakukan peminjaman buku (dengan verifikasi stok, batas kuota, dan transaksi).
+     * Mahasiswa: Melakukan peminjaman buku (melalui PeminjamanService dengan ACID transaction & lockForUpdate).
      */
     public function pinjam(Request $request, Buku $buku): RedirectResponse
     {
@@ -47,70 +60,31 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Hanya mahasiswa yang dapat melakukan peminjaman buku.');
         }
 
-        // Cek stok buku
-        if ($buku->stok <= 0) {
-            return back()->with('error', "Buku '{$buku->judul}' saat ini sedang tidak tersedia (stok habis).");
-        }
+        try {
+            $peminjaman = $this->peminjamanService->pinjam($user, $buku->id);
 
-        // Cek apakah mahasiswa sedang meminjam buku yang sama
-        $sedangMeminjam = Peminjaman::where('user_id', $user->id)
-            ->where('buku_id', $buku->id)
-            ->where('status', 'dipinjam')
-            ->exists();
-
-        if ($sedangMeminjam) {
-            return back()->with('error', "Anda sedang meminjam buku '{$buku->judul}'. Tidak dapat meminjam buku yang sama secara bersamaan.");
-        }
-
-        // Cek kuota maksimal peminjaman
-        $maxPinjam = (int) config('perpustakaan.maksimal_pinjam_buku', 3);
-        $totalAktif = Peminjaman::where('user_id', $user->id)
-            ->where('status', 'dipinjam')
-            ->count();
-
-        if ($totalAktif >= $maxPinjam) {
-            return back()->with('error', "Anda telah mencapai batas maksimal peminjaman ({$maxPinjam} buku aktif). Harap kembalikan buku terlebih dahulu.");
-        }
-
-        // Cek apakah ada pinjaman terlambat
-        if ($user->memilikiPinjamanTerlambat()) {
-            return back()->with('error', 'Anda memiliki peminjaman buku yang telah melewati jatuh tempo. Harap selesaikan pengembalian sebelum meminjam buku baru.');
-        }
-
-        // Cek apakah ada denda yang belum lunas
-        if ($user->totalDendaBelumLunas() > 0) {
-            $totalDenda = number_format($user->totalDendaBelumLunas(), 0, ',', '.');
-            return back()->with('error', "Anda memiliki tunggakan denda sebesar Rp{$totalDenda}. Harap lunasi denda ke pihak perpustakaan terlebih dahulu.");
-        }
-
-        $lamaPinjam = (int) config('perpustakaan.lama_pinjam_hari', 7);
-        $tanggalPinjam = now();
-        $jatuhTempo = now()->addDays($lamaPinjam);
-
-        DB::transaction(function () use ($buku, $user, $tanggalPinjam, $jatuhTempo) {
-            // Penguncian baris (row lock) untuk mencegah race condition pada stok
-            $lockedBuku = Buku::where('id', $buku->id)->lockForUpdate()->first();
-
-            if ($lockedBuku->stok <= 0) {
-                throw new \RuntimeException('Stok buku habis saat proses peminjaman.');
-            }
-
-            $lockedBuku->decrement('stok');
-
-            Peminjaman::create([
+            return redirect()->route('pinjaman.index')
+                ->with('success', "Buku '{$buku->judul}' berhasil dipinjam! Batas jatuh tempo pengembalian: " . $peminjaman->tanggal_jatuh_tempo->format('d M Y') . " (Kode Pinjam: {$peminjaman->kode_pinjam}).");
+        } catch (StokHabisException | NimTidakTersediaException | PeminjamanGandaException | BatasPinjamTercapaiException | PinjamanTerlambatException | DendaBelumLunasException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        } catch (QueryException $e) {
+            Log::error('[DB EXCEPTION] Gagal memproses peminjaman buku', [
+                'action' => 'pinjam',
                 'user_id' => $user->id,
                 'buku_id' => $buku->id,
-                'tanggal_pinjam' => $tanggalPinjam->toDateString(),
-                'tanggal_jatuh_tempo' => $jatuhTempo->toDateString(),
-                'status' => 'dipinjam',
-                'perpanjangan' => 0,
-                'denda' => 0,
-                'denda_lunas' => false,
+                'error' => $e->getMessage(),
             ]);
-        });
 
-        return redirect()->route('pinjaman.index')
-            ->with('success', "Buku '{$buku->judul}' berhasil dipinjam! Batas jatuh tempo pengembalian: " . $jatuhTempo->format('d M Y') . ".");
+            return back()->withInput()->with('error', 'Terjadi gangguan pada sistem basis data saat memproses peminjaman. Silakan coba beberapa saat lagi.');
+        } catch (\Throwable $e) {
+            Log::error('[ERROR] Peminjaman gagal', [
+                'user_id' => $user->id,
+                'buku_id' => $buku->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withInput()->with('error', $e->getMessage() ?: 'Gagal memproses peminjaman.');
+        }
     }
 
     /**
@@ -120,31 +94,24 @@ class PeminjamanController extends Controller
     {
         $user = Auth::user();
 
-        if ($peminjaman->user_id !== $user->id) {
-            abort(403, 'Anda tidak berhak mengakses transaksi ini.');
+        try {
+            $peminjaman = $this->peminjamanService->perpanjang($peminjaman->id, $user);
+
+            return back()->with('success', "Peminjaman berhasil diperpanjang hingga {$peminjaman->tanggal_jatuh_tempo->format('d M Y')}.");
+        } catch (PinjamanTerlambatException | \RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (QueryException $e) {
+            Log::error('[DB EXCEPTION] Gagal memperpanjang peminjaman', [
+                'action' => 'perpanjang',
+                'peminjaman_id' => $peminjaman->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Terjadi gangguan sistem saat memperpanjang peminjaman.');
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage() ?: 'Gagal memperpanjang peminjaman.');
         }
-
-        if ($peminjaman->status !== 'dipinjam') {
-            return back()->with('error', 'Buku ini sudah dikembalikan.');
-        }
-
-        if ($peminjaman->perpanjangan >= 1) {
-            return back()->with('error', 'Peminjaman ini sudah pernah diperpanjang sebelumnya (maksimal 1 kali).');
-        }
-
-        if ($peminjaman->is_terlambat) {
-            return back()->with('error', 'Peminjaman yang sudah terlambat tidak dapat diperpanjang. Harap segera kembalikan ke perpustakaan.');
-        }
-
-        $lamaPerpanjang = (int) config('perpustakaan.lama_perpanjang_hari', 7);
-        $jatuhTempoBaru = $peminjaman->tanggal_jatuh_tempo->copy()->addDays($lamaPerpanjang);
-
-        $peminjaman->update([
-            'tanggal_jatuh_tempo' => $jatuhTempoBaru->toDateString(),
-            'perpanjangan' => $peminjaman->perpanjangan + 1,
-        ]);
-
-        return back()->with('success', "Peminjaman berhasil diperpanjang hingga {$jatuhTempoBaru->format('d M Y')}.");
     }
 
     /**
@@ -156,12 +123,12 @@ class PeminjamanController extends Controller
 
         $status = $request->input('status');
         if ($status === 'dipinjam') {
-            $query->where('status', 'dipinjam');
+            $query->where('status', Peminjaman::STATUS_DIPINJAM);
         } elseif ($status === 'terlambat') {
             $today = now()->startOfDay()->toDateString();
-            $query->where('status', 'dipinjam')->where('tanggal_jatuh_tempo', '<', $today);
+            $query->where('status', Peminjaman::STATUS_DIPINJAM)->where('tanggal_jatuh_tempo', '<', $today);
         } elseif ($status === 'dikembalikan') {
-            $query->where('status', 'dikembalikan');
+            $query->where('status', Peminjaman::STATUS_DIKEMBALIKAN);
         }
 
         if ($search = $request->input('search')) {
@@ -173,7 +140,9 @@ class PeminjamanController extends Controller
                     $uq->where('name', 'like', "%{$search}%")
                        ->orWhere('email', 'like', "%{$search}%")
                        ->orWhere('nim', 'like', "%{$search}%");
-                });
+                })->orWhere('kode_pinjam', 'like', "%{$search}%")
+                  ->orWhere('nim_peminjam', 'like', "%{$search}%")
+                  ->orWhere('nama_peminjam', 'like', "%{$search}%");
             });
         }
 
@@ -187,33 +156,32 @@ class PeminjamanController extends Controller
      */
     public function kembalikan(Peminjaman $peminjaman): RedirectResponse
     {
-        if ($peminjaman->status === 'dikembalikan') {
-            return back()->with('error', 'Peminjaman ini sudah tercatat dikembalikan sebelumnya.');
-        }
+        $petugas = Auth::user();
 
-        $tanggalKembali = now();
-        $denda = $peminjaman->hitungDendaBerjalan();
-        $dendaLunas = ($denda === 0);
+        try {
+            $peminjaman = $this->peminjamanService->kembali($peminjaman->id, $petugas);
 
-        DB::transaction(function () use ($peminjaman, $tanggalKembali, $denda, $dendaLunas) {
-            // Kembalikan stok buku
-            Buku::where('id', $peminjaman->buku_id)->increment('stok');
+            $pesan = "Pengembalian buku '{$peminjaman->buku->judul}' (Kode: {$peminjaman->kode_pinjam}) berhasil dicatat.";
+            if ($peminjaman->denda > 0) {
+                $dendaFmt = number_format($peminjaman->denda, 0, ',', '.');
+                $pesan .= " Terdapat denda keterlambatan sebesar Rp{$dendaFmt}.";
+            }
 
-            $peminjaman->update([
-                'status' => 'dikembalikan',
-                'tanggal_kembali' => $tanggalKembali->toDateString(),
-                'denda' => $denda,
-                'denda_lunas' => $dendaLunas,
+            return back()->with('success', $pesan);
+        } catch (PeminjamanSudahKembaliException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (QueryException $e) {
+            Log::error('[DB EXCEPTION] Gagal memproses pengembalian buku', [
+                'action' => 'kembali',
+                'peminjaman_id' => $peminjaman->id,
+                'petugas_id' => $petugas?->id,
+                'error' => $e->getMessage(),
             ]);
-        });
 
-        $pesan = "Pengembalian buku '{$peminjaman->buku->judul}' berhasil dicatat.";
-        if ($denda > 0) {
-            $dendaFmt = number_format($denda, 0, ',', '.');
-            $pesan .= " Terdapat denda keterlambatan sebesar Rp{$dendaFmt}.";
+            return back()->with('error', 'Terjadi gangguan sistem saat mencatat pengembalian buku.');
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage() ?: 'Gagal memproses pengembalian buku.');
         }
-
-        return back()->with('success', $pesan);
     }
 
     /**
@@ -221,12 +189,25 @@ class PeminjamanController extends Controller
      */
     public function tandaiLunas(Peminjaman $peminjaman): RedirectResponse
     {
-        if ($peminjaman->denda_lunas) {
-            return back()->with('error', 'Denda pada peminjaman ini sudah berstatus lunas.');
+        $petugas = Auth::user();
+
+        try {
+            $this->peminjamanService->tandaiLunas($peminjaman->id, $petugas);
+
+            return back()->with('success', "Denda pada peminjaman {$peminjaman->kode_pinjam} berhasil ditandai LUNAS.");
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (QueryException $e) {
+            Log::error('[DB EXCEPTION] Gagal menandai lunas denda', [
+                'action' => 'tandaiLunas',
+                'peminjaman_id' => $peminjaman->id,
+                'petugas_id' => $petugas?->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Terjadi gangguan sistem saat pelunasan denda.');
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage() ?: 'Gagal menandai lunas denda.');
         }
-
-        $peminjaman->update(['denda_lunas' => true]);
-
-        return back()->with('success', 'Denda berhasil ditandai LUNAS.');
     }
 }
