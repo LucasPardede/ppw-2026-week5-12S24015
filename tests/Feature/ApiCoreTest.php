@@ -65,8 +65,8 @@ class ApiCoreTest extends TestCase
 
     public function test_api_405_method_not_allowed_returns_rfc_7807(): void
     {
-        // Rute /api/user hanya menerima GET
-        $response = $this->deleteJson('/api/user');
+        // Rute /api/v1/auth/me hanya menerima GET
+        $response = $this->postJson('/api/v1/auth/me');
 
         $response->assertStatus(405);
         $response->assertHeader('Content-Type', 'application/problem+json');
@@ -85,7 +85,8 @@ class ApiCoreTest extends TestCase
 
     public function test_api_401_unauthenticated_returns_rfc_7807(): void
     {
-        $response = $this->getJson('/api/user');
+        // Rute /api/v1/auth/me membutuhkan Bearer token
+        $response = $this->getJson('/api/v1/auth/me');
 
         $response->assertStatus(401);
         $response->assertHeader('Content-Type', 'application/problem+json');
