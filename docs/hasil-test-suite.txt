@@ -1,0 +1,51 @@
+﻿
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\ExampleTest[39m
+  [32;1mΓ£ô[39;22m[90m [39m[90mthat true is true[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\AcidPeminjamanTest[39m
+  [32;1mΓ£ô[39;22m[90m [39m[90mu1 pinjam buku stok 1 berhasil dan stok menjadi 0[39m[90m                                                           [39m [90m2.89s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu2 pinjam buku stok 0 ditolak stok tetap 0 dan rollback[39m[90m                                                     [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu3 nim sama meminjam buku sama dua kali ditolak[39m[90m                                                             [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu4 setelah dikembalikan nim sama boleh meminjam ulang[39m[90m                                                       [39m [90m0.13s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu5 kembali menambah stok dan kembali kedua kali ditolak stok tidak ganda[39m[90m                                    [39m [90m0.14s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu6 batas maksimal pinjaman aktif per nim ditolak[39m[90m                                                            [39m [90m0.14s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mu8 halaman katalog bebas dari masalah n plus 1[39m[90m                                                              [39m [90m0.32s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mauth login sukses regenerasi sesi dan cookie httponly[39m[90m                                                       [39m [90m0.12s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mauth logout menghapus sesi[39m[90m                                                                                  [39m [90m0.08s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mauth tamu dialihkan ke login[39m[90m                                                                                [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mauth mahasiswa mendapat 403 di rute admin[39m[90m                                                                   [39m [90m0.08s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mseeder konsistensi stok dan tidak ada stok negatif[39m[90m                                                          [39m [90m0.38s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\ExampleTest[39m
+  [32;1mΓ£ô[39;22m[90m [39m[90mthe application returns a successful response[39m[90m                                                               [39m [90m0.06s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PengumumanTest[39m
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa can view active announcements[39m[90m                                                                     [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa can view announcement detail[39m[90m                                                                      [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa cannot view inactive announcement[39m[90m                                                                 [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa forbidden from admin announcement routes[39m[90m                                                          [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin can view announcement management index[39m[90m                                                                [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin can create new announcement[39m[90m                                                                           [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin can update announcement[39m[90m                                                                               [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin can delete announcement[39m[90m                                                                               [39m [90m0.06s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin can toggle pin announcement[39m[90m                                                                           [39m [90m0.09s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\SipusDelTest[39m
+  [32;1mΓ£ô[39;22m[90m [39m[90mlogin mahasiswa simulasi berhasil ke katalog[39m[90m                                                                [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mlogin admin password salah ditolak[39m[90m                                                                          [39m [90m0.28s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mlogin admin password benar masuk ke dashboard[39m[90m                                                               [39m [90m0.08s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa dilarang mengakses panel admin 403[39m[90m                                                                [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin bisa menambah kategori[39m[90m                                                                                [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mkode kategori duplikat ditolak[39m[90m                                                                              [39m [90m0.08s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mkategori tidak bisa dihapus jika masih memiliki buku[39m[90m                                                        [39m [90m0.07s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mtambah buku validasi judul minimal 5 karakter[39m[90m                                                               [39m [90m0.10s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin bisa tambah buku berhasil[39m[90m                                                                             [39m [90m0.10s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mbuku tidak bisa dihapus jika memiliki riwayat peminjaman[39m[90m                                                    [39m [90m0.09s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa meminjam buku mengurangi stok[39m[90m                                                                     [39m [90m0.12s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mmahasiswa tidak bisa meminjam buku yang sama dua kali bersamaan[39m[90m                                             [39m [90m0.13s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90mperpanjangan buku maksimal 1 kali[39m[90m                                                                           [39m [90m0.15s[39m  
+  [32;1mΓ£ô[39;22m[90m [39m[90madmin mencatat pengembalian dan stok bertambah[39m[90m                                                              [39m [90m0.14s[39m  
+
+  [90mTests:[39m    [32;1m37 passed[39;22m[90m (117 assertions)[39m
+  [90mDuration:[39m [39m7.80s[39m
+
