@@ -94,3 +94,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');
     Route::get('/admin/laporan/export', [LaporanController::class, 'exportCsv'])->name('admin.laporan.export');
 });
+
+// ==========================================
+// RUTE LAYANAN SOAP LEGACY (Bebas Pustaka Yudisium)
+// ==========================================
+Route::get('/soap/sipus.wsdl', [\App\Http\Controllers\Soap\LibrarySoapController::class, 'wsdl']);
+Route::post('/soap/sipus', [\App\Http\Controllers\Soap\LibrarySoapController::class, 'handle']);

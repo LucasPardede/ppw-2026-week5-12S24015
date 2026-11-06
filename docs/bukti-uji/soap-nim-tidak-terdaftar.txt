@@ -1,0 +1,19 @@
+HTTP/1.1 500 Internal Server Error
+Host: 127.0.0.1:8002
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Fri, 06 Nov 2026 09:55:20 GMT
+Content-Type: text/xml; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IjNmdzRrQTVuOG9nRVM3M3JWcEtMNlE9PSIsInZhbHVlIjoiNWVCanBGTjRub2VCbG9tWjZiTVcyZTd0R25DcncwNFg4VEI2bXhGOUZvK2lWQW9uamlIS215OG9GTmJsM1l3UklLa1E4alBIY3BCR0R1NUcwZXNEWWJVN1FKdHl6aXpaWjhzU0ZBSTQzSlpZRGRHU3V5VW9Ob3NMRnpVbXduaDQiLCJtYWMiOiI2N2U3YTc5ZmYwOWM1OWVmYzNjZDdiNjZiYTYwZGEyMzAzNzg5MDIxMTUyMjMxYzdmYzA3MGZjZWE0OTY5YWNjIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: sipus-del-perpustakaan-del-session=eyJpdiI6InBzcFVnUndjeDhBWlNvMFdrdGtNdVE9PSIsInZhbHVlIjoiQVNjWVpINVRaM0dJakdDMFJMRVh6QmZXTXBITDBuMHhqZmk5bEhwZ2k1dkFnWnJaVnUyZGIxaWVXL0UwRUpBNVFTdXp5WElZcS9TRjE0MHh0blpDcVRnNXp4MlYyanZVbmZxRnJPNW1Sbmg5V1A5UTlDTXdUaU5DTVlSYndyS0wiLCJtYWMiOiJmYTM4ZGNkMDBjYmUxM2ZhYTgxMDgwM2M3Yzk3Y2E2ZmQ1NTQzYzhiNjAzYjE5ZWVmYWU0ZTczYzFjZGJkNGZmIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Client</faultcode>
+            <faultstring>NIM '99S99999' tidak terdaftar di sistem perpustakaan.</faultstring>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

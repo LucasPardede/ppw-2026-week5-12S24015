@@ -1,0 +1,19 @@
+HTTP/1.1 500 Internal Server Error
+Host: 127.0.0.1:8002
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Fri, 06 Nov 2026 09:55:21 GMT
+Content-Type: text/xml; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6Img3cTBzQUlNdjBaN05uVnRTQ29tanc9PSIsInZhbHVlIjoiYXZvcUlmUC81Q2M2dU45dWtzNDZoZEdZOVJBZHNCa0R6bGV4dGF4T3lVNzE2TCt6OFVqRFU2eU92eW56VXY1a09sR0dxUjBQRGdXbGJzemdlaHUxU2toVUJ1d0hMTnRMclgvKytGTlhRUFkyRnNQM1JLUXNnQnFSUzBRZHY3MnciLCJtYWMiOiI2MmMyZTE1NmFmZGQ3OWUwMWNjMzc2ODZhM2NmYmJlMGYzMzdiNTNiNzhhMWRkMmUxNTM4YzI0Zjc5MDMwMDc3IiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:21 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: sipus-del-perpustakaan-del-session=eyJpdiI6InBsQ0JvRWRMbjRXVlIzM1VRQ1RPWkE9PSIsInZhbHVlIjoiMG9ZcVdaU000d3BPeVE5VnMybXMwR3RxOWtwY1JHN2U0MjBIRE0zQ09rNTNDN1pRWnFyTi85VDlZYmZKWjk0elcwWW8wVDhHUHNQUVB1eGpjUGR4Sm15RjJFY2pLcmdYNWdDZ2lrZk90T2RDR3RpcHA2MGtNcXJsYW9MVlVwcDYiLCJtYWMiOiJlOTczNGM5NGIwODJlYTYxZGYxMDczY2Q0NmM5NGRlMGZlMjdlODU0MzY2MWJkZjc3YWI2NmEzNDYzNmZlOGIwIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:21 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Client</faultcode>
+            <faultstring>Format XML tidak valid (Malformed XML).</faultstring>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

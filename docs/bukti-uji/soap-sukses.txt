@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+Host: 127.0.0.1:8002
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Fri, 06 Nov 2026 09:55:20 GMT
+Content-Type: text/xml; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IjJjVlpzMGVSVzFEZC9zeWtSaFFiNmc9PSIsInZhbHVlIjoieWZteG9lYVNVSDIrdGJmc2xHcEszZ2J5dXRCNmZHUFVEekw5YWdGRFFzYnZwZzhQWEl6RnlWdlM5dk42bThHL0wyUXV0d2FiaFpJeDFhM2Y4YVN6eEVIaVpvc1ZJSUZCZzVKVkd3K05zcEFsYlRsWE8wazhyUS9ZbDFPZkl3RSsiLCJtYWMiOiI3NzE5Y2UyNjAzOTA2NmJjNDViNTA3NWMzZTQ2M2Q5YTA1ZDE2ZThmN2Q0ODJjYTMyZGM4NGQ5NGIxM2VlYTRhIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: sipus-del-perpustakaan-del-session=eyJpdiI6IlZrdnFNdG5ZZTI1ZmM1Rlc3cWdpeGc9PSIsInZhbHVlIjoiV1pYUmt0dW8wTGZIZmxDdWdkT2UvSE8zNlBjT3lFbGtlSnFMTmhsK1FLTEJLaFNHT1Y2M3AvM29qUzgxVW1oTGhkTGN3cVRoRm9od2ZLeVNKb3FRcnZHYlhPeEQ1Q3VYNWlqRlk4U2J3Z3NacnZqay9ZT2ZOUkhWRUxIMjNBRVEiLCJtYWMiOiI4YzBjOTc2MjdmZWEyMjA3M2Q1NDMyMmU3OGE4ODQ1MTYwNjZlMjI2OGMzOTk4NmZmZDExNWZmNmYwZDgxZTlhIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:m="http://sipus.del.ac.id/soap/clearance">
+    <soap:Header>
+        <m:ProviderInfo>SIPUS-Del Legacy SOAP Engine v1.0</m:ProviderInfo>
+    </soap:Header>
+    <soap:Body>
+        <m:CheckClearanceStatusResponse>
+            <m:nim_peminjam>12S24015</m:nim_peminjam>
+            <m:active_loans>2</m:active_loans>
+            <m:is_cleared>false</m:is_cleared>
+        </m:CheckClearanceStatusResponse>
+    </soap:Body>
+</soap:Envelope>

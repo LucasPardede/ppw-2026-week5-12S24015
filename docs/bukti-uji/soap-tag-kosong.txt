@@ -1,0 +1,19 @@
+HTTP/1.1 500 Internal Server Error
+Host: 127.0.0.1:8002
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Fri, 06 Nov 2026 09:55:20 GMT
+Content-Type: text/xml; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IkN4ZENiU0ozK3lBZDNYam5CYmxseGc9PSIsInZhbHVlIjoiRW1KSWFtUDhUS2xWZDVOZmNVVjV1bldFZ1VHajJXdlVaVHlkaTc0T0lqLzU2RElzY1JCMW9Vam9VaTh1WWRuS2hmZjQzbVRGUmRzbUZ4R1cyME1JU1lpMHN3R0FFM21aLzcyditUV2JBMzY0QkgxZmczWFIzb1NuOFlZK25QSCsiLCJtYWMiOiJmNWQxZGNjN2Q1NTYzM2M2NjMxOTY4N2MwNjRjMDQ5MjA2NjQzMmZjM2M4YWExYjg5Nzg1ZjNkZWJiYzdiMmRkIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; samesite=lax
+Set-Cookie: sipus-del-perpustakaan-del-session=eyJpdiI6IngxeWYwaG1CbEFGdnN1ZW5QSEVyVkE9PSIsInZhbHVlIjoicTI0b1R0U0gxYmlyZ1FXV3BOSWZSWi9CM0xlZ2VjeDJabWdqYVdaa3dLKzBMcWJyL040YTBXcElxVWx3djJoMDY0K2F6QnNKaUdwSWo1bWxNY3RPZ3J4QndNU3I5ZXRNRG1IcEZxTVMxYTY3Vmp3ekp6cnppdzdvRGduTXlrM2siLCJtYWMiOiJlOGRjYzVmY2I2YWE2YzQwYzcxNWE0ODZiYTMxZmI1MjJkNTJjY2I2NDAxYjUxOTkzN2ZmOWY3ZTEzNThhMTQ3IiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:20 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Client</faultcode>
+            <faultstring>Nilai elemen &lt;nim_peminjam&gt; tidak boleh kosong.</faultstring>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

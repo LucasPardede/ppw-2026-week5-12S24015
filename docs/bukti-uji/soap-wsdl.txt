@@ -1,0 +1,58 @@
+HTTP/1.1 200 OK
+Host: 127.0.0.1:8002
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Fri, 06 Nov 2026 09:55:18 GMT
+Content-Type: text/xml; charset=utf-8
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IkZDdXdZVHdhbDNxeTBvaTZpMWczNGc9PSIsInZhbHVlIjoiS2ovSVIvc0pjNVcxTVZWeHMrVjJrVUhjK0ZzWFFiS3lzSDdBb2swU29HMzhacUFwNVRjY3pROWx5VlVKdWdoMlkrWmlScXU5MzhRY0k3M0ZsQ2xWNHVhV0RoNDlSNnJDU1d6anFvcGxISDE1WEdyY3E5MDJhdXRZUmMvSGs5UXAiLCJtYWMiOiJjNjlmMjY1NjI3NDM3M2MzYjYyZGQ2MmUzNzYwM2Y3YzhmZWU2YzU3MzBmM2Y0YzNlNGE0NTE0NGEzNzllZThmIiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:18 GMT; Max-Age=7199; path=/; samesite=lax
+Set-Cookie: sipus-del-perpustakaan-del-session=eyJpdiI6ImM0L3RLb1BpNmhsRERXeTJvWWVvTnc9PSIsInZhbHVlIjoiZitHOHROQnh4SFk5NnFSaStZdm9zQksvNmZtM0xnSHdvUzV0TXFzektYaDdWMFZtL2RKNVI5RFlIdWoyM2c4eW5JMnNyYWFoaDNaTXF2d2lJd3RGak96SE9RbTNUQm8ranoxTVNwOVYzRzhxa3FyM2Y5ZXFOVFBzZTJkM2RUNnAiLCJtYWMiOiI2MTQxMDRiNDZlMmY4NjAyMjE3NmUyYTMyYWNiN2I4MzJjMzgyNjU3Yzc5YWRjNDdlNzM2NTRjMDBhZTk2MDM0IiwidGFnIjoiIn0%3D; expires=Fri, 06 Nov 2026 11:55:18 GMT; Max-Age=7199; path=/; httponly; samesite=lax
+
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="LibrarySoapService"
+    targetNamespace="http://sipus.del.ac.id/soap/clearance"
+    xmlns:tns="http://sipus.del.ac.id/soap/clearance"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+    <!-- 1. Message: Spesifikasi parameter input dan output -->
+    <message name="CheckClearanceStatusRequest">
+        <part name="nim_peminjam" type="xsd:string"/>
+    </message>
+
+    <message name="CheckClearanceStatusResponse">
+        <part name="nim_peminjam" type="xsd:string"/>
+        <part name="active_loans" type="xsd:int"/>
+        <part name="is_cleared" type="xsd:boolean"/>
+    </message>
+
+    <!-- 2. PortType: Daftar operasi yang disediakan -->
+    <portType name="LibraryPortType">
+        <operation name="CheckClearanceStatus">
+            <input message="tns:CheckClearanceStatusRequest"/>
+            <output message="tns:CheckClearanceStatusResponse"/>
+        </operation>
+    </portType>
+
+    <!-- 3. Binding: Mengikat operasi ke protokol SOAP over HTTP RPC -->
+    <binding name="LibrarySoapBinding" type="tns:LibraryPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="CheckClearanceStatus">
+            <soap:operation soapAction="http://sipus.del.ac.id/soap/clearance#CheckClearanceStatus"/>
+            <input>
+                <soap:body use="literal" namespace="http://sipus.del.ac.id/soap/clearance"/>
+            </input>
+            <output>
+                <soap:body use="literal" namespace="http://sipus.del.ac.id/soap/clearance"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- 4. Service: Alamat URL fisik endpoint SOAP -->
+    <service name="LibrarySoapService">
+        <port name="LibraryPort" binding="tns:LibrarySoapBinding">
+            <soap:address location="http://127.0.0.1:8002/soap/sipus"/>
+        </port>
+    </service>
+</definitions>
