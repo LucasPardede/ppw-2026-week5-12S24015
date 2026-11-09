@@ -1,0 +1,20 @@
+=== GET /api/v1/bukus/1/referensi-eksternal - Integrasi OpenLibrary Books API (200 OK) ===
+
+$ curl.exe -i -X GET http://127.0.0.1:8000/api/v1/bukus/1/referensi-eksternal -H "Accept: application/json"
+
+HTTP/1.1 504
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:11 GMT
+Content-Type: application/problem+json
+Access-Control-Allow-Origin: *
+
+{
+  "type": "http://127.0.0.1:8001/docs/errors/external-service-timeout",
+  "title": "Gateway Timeout",
+  "status": 504,
+  "detail": "Batas waktu komunikasi dengan layanan OpenLibrary telah habis (timeout).",
+  "instance": "/api/v1/bukus/1/referensi-eksternal"
+}

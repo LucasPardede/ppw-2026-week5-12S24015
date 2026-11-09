@@ -1,0 +1,55 @@
+=== POST /api/v1/bukus - Tambah Buku Baru (201 Created + Location Header) ===
+
+$ curl.exe -i -X POST http://127.0.0.1:8000/api/v1/bukus -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -H "Accept: application/json" -d '{"isbn": "9786026706339", "judul": "Bumi Manusia Edisi Baru", "penulis": "Pramoedya Ananta Toer", "penerbit": "Hasta Mitra", "tahun_terbit": 2024, "kategori_id": 1, "stok": 5, "sinopsis": "Roman tetralogi Buru bagian pertama menceritakan pergulatan batin Minke."}'
+
+HTTP/1.1 201
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:01 GMT
+Content-Type: application/json
+Location: http://127.0.0.1:8001/api/v1/bukus/29
+Access-Control-Allow-Origin: *
+
+{
+  "success": true,
+  "message": "Buku baru berhasil ditambahkan.",
+  "data": {
+    "id": 29,
+    "isbn": "9786026706339",
+    "judul": "Bumi Manusia Edisi Baru",
+    "penulis": "Pramoedya Ananta Toer",
+    "penerbit": "Hasta Mitra",
+    "tahun_terbit": 2024,
+    "stok": 5,
+    "status_stok": "tersedia",
+    "sinopsis": "Roman tetralogi Buru bagian pertama menceritakan pergulatan batin Minke.",
+    "kategori": {
+      "id": 1,
+      "kode_kategori": "IF-WEB",
+      "nama_kategori": "Pemrograman Web & Arsitektur Perangkat Lunak"
+    },
+    "total_peminjaman": 0,
+    "created_at": "2026-11-09T14:10:01+00:00",
+    "updated_at": "2026-11-09T14:10:01+00:00",
+    "_links": {
+      "self": {
+        "href": "http://127.0.0.1:8001/api/v1/bukus/29",
+        "method": "GET"
+      },
+      "collection": {
+        "href": "http://127.0.0.1:8001/api/v1/bukus",
+        "method": "GET"
+      },
+      "referensi_eksternal": {
+        "href": "http://127.0.0.1:8001/api/v1/bukus/29/referensi-eksternal",
+        "method": "GET"
+      },
+      "pinjam_buku": {
+        "href": "http://127.0.0.1:8001/api/v1/peminjamans",
+        "method": "POST"
+      }
+    }
+  }
+}

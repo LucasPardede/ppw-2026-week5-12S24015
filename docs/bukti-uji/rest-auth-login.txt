@@ -1,0 +1,29 @@
+=== POST /api/v1/auth/login - Sukses Pustakawan (200 OK) ===
+
+$ curl.exe -i -X POST http://127.0.0.1:8000/api/v1/auth/login -H "Content-Type: application/json" -H "Accept: application/json" -d '{"email":"pustakawan@del.ac.id","password":"password123"}'
+
+HTTP/1.1 200
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:00 GMT
+Content-Type: application/json
+X-RateLimit-Limit: 5
+X-RateLimit-Remaining: 4
+Access-Control-Allow-Origin: *
+
+{
+  "success": true,
+  "message": "Otentikasi API berhasil. Lampirkan access_token pada header Authorization: Bearer <token>.",
+  "data": {
+    "token_type": "Bearer",
+    "access_token": "3|PXY9MLAKcNK6sphu3aBjTxBMGaIvn2kMU3ueBqbH947cd031",
+    "user": {
+      "id": 1,
+      "name": "Pustakawan Del",
+      "email": "pustakawan@del.ac.id",
+      "role": "admin"
+    }
+  }
+}

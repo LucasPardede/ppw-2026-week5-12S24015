@@ -1,0 +1,20 @@
+=== POST /api/v1/peminjamans - Penolakan Peminjaman Stok Habis (422 Unprocessable Content) ===
+
+$ curl.exe -i -X POST http://127.0.0.1:8000/api/v1/peminjamans -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -H "Accept: application/problem+json" -d '{"buku_id":2,"nim_peminjam":"12S24015","nama_peminjam":"Lucas Pardede","durasi_hari":7}'
+
+HTTP/1.1 409
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:02 GMT
+Content-Type: application/problem+json
+Access-Control-Allow-Origin: *
+
+{
+  "type": "http://127.0.0.1:8001/docs/errors/overdue-loan-conflict",
+  "title": "Conflict — Overdue Loan Exists",
+  "status": 409,
+  "detail": "Mahasiswa masih memiliki tanggungan buku pinjaman yang telah melewati batas jatuh tempo (terlambat).",
+  "instance": "/api/v1/peminjamans"
+}

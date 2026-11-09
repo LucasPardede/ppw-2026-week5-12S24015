@@ -1,0 +1,20 @@
+=== POST /api/v1/peminjamans - Penolakan Peminjaman Ganda Mahasiswa (409 Conflict) ===
+
+$ curl.exe -i -X POST http://127.0.0.1:8000/api/v1/peminjamans -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -H "Accept: application/problem+json" -d '{"buku_id": 29, "nim_peminjam": "12S24099", "nama_peminjam": "Budi Santoso", "durasi_hari": 7}'
+
+HTTP/1.1 409
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:02 GMT
+Content-Type: application/problem+json
+Access-Control-Allow-Origin: *
+
+{
+  "type": "http://127.0.0.1:8001/docs/errors/duplicate-active-loan",
+  "title": "Duplicate Loan Conflict",
+  "status": 409,
+  "detail": "Mahasiswa dengan NIM '12S24099' sedang meminjam buku yang sama dan belum mengembalikannya.",
+  "instance": "/api/v1/peminjamans"
+}

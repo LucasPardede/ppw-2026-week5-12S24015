@@ -1,0 +1,105 @@
+=== GET /api/v1/bukus?per_page=2&tersedia=1 - Katalog Buku Terpaginasi & HATEOAS (200 OK) ===
+
+$ curl.exe -i -X GET "http://127.0.0.1:8000/api/v1/bukus?per_page=2&tersedia=1" -H "Accept: application/json"
+
+HTTP/1.1 200
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:01 GMT
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+
+{
+  "success": true,
+  "message": "Daftar koleksi buku berhasil diambil.",
+  "data": [
+    {
+      "id": 15,
+      "isbn": "978-013-604259-4",
+      "judul": "Artificial Intelligence: A Modern Approach (Fourth Edition)",
+      "penulis": "Stuart Russell, Peter Norvig",
+      "penerbit": "Pearson",
+      "tahun_terbit": 2020,
+      "stok": 5,
+      "status_stok": "tersedia",
+      "sinopsis": "Teks definitif teori dan aplikasi kecerdasan buatan dari pencarian hingga pembelajaran mesin.",
+      "kategori": {
+        "id": 5,
+        "kode_kategori": "AI-ML",
+        "nama_kategori": "Kecerdasan Buatan & Pembelajaran Mesin"
+      },
+      "total_peminjaman": 0,
+      "created_at": "2026-10-17T06:43:22+00:00",
+      "updated_at": "2026-10-17T06:43:22+00:00",
+      "_links": {
+        "self": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus/15",
+          "method": "GET"
+        },
+        "collection": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus",
+          "method": "GET"
+        },
+        "referensi_eksternal": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus/15/referensi-eksternal",
+          "method": "GET"
+        },
+        "pinjam_buku": {
+          "href": "http://127.0.0.1:8001/api/v1/peminjamans",
+          "method": "POST"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "isbn": "978-073-521129-2",
+      "judul": "Atomic Habits: Perubahan Kecil yang Memberikan Hasil Luar Biasa",
+      "penulis": "James Clear",
+      "penerbit": "Gramedia Pustaka Utama",
+      "tahun_terbit": 2019,
+      "stok": 7,
+      "status_stok": "tersedia",
+      "sinopsis": "Strategi membangun kebiasaan baik dan meruntuhkan kebiasaan buruk secara bertahap.",
+      "kategori": {
+        "id": 6,
+        "kode_kategori": "LIT-FIK",
+        "nama_kategori": "Sains Terapan & Pengembangan Diri"
+      },
+      "total_peminjaman": 0,
+      "created_at": "2026-10-17T06:43:22+00:00",
+      "updated_at": "2026-10-17T06:43:22+00:00",
+      "_links": {
+        "self": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus/18",
+          "method": "GET"
+        },
+        "collection": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus",
+          "method": "GET"
+        },
+        "referensi_eksternal": {
+          "href": "http://127.0.0.1:8001/api/v1/bukus/18/referensi-eksternal",
+          "method": "GET"
+        },
+        "pinjam_buku": {
+          "href": "http://127.0.0.1:8001/api/v1/peminjamans",
+          "method": "POST"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 2,
+    "total_items": 23,
+    "total_pages": 12,
+    "links": {
+      "first": "http://127.0.0.1:8001/api/v1/bukus?per_page=2&tersedia=1&page=1",
+      "prev": null,
+      "next": "http://127.0.0.1:8001/api/v1/bukus?per_page=2&tersedia=1&page=2",
+      "last": "http://127.0.0.1:8001/api/v1/bukus?per_page=2&tersedia=1&page=12"
+    }
+  }
+}

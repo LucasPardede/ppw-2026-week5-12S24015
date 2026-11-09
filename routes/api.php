@@ -37,6 +37,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/peminjamans', [PeminjamanApiController::class, 'index']);
         Route::get('/peminjamans/{id}', [PeminjamanApiController::class, 'show'])->whereNumber('id');
         Route::post('/peminjamans', [PeminjamanApiController::class, 'store']);
-        Route::patch('/peminjamans/{id}/kembalikan', [PeminjamanApiController::class, 'kembalikan'])->whereNumber('id');
+        Route::match(['post', 'patch'], '/peminjamans/{id}/kembalikan', [PeminjamanApiController::class, 'kembalikan'])->whereNumber('id');
     });
 });

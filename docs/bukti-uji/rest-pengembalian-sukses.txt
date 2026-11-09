@@ -1,0 +1,51 @@
+=== POST /api/v1/peminjamans/14/kembalikan - Pengembalian Buku Sukses (200 OK) ===
+
+$ curl.exe -i -X POST http://127.0.0.1:8000/api/v1/peminjamans/14/kembalikan -H "Authorization: Bearer <TOKEN>" -H "Accept: application/json"
+
+HTTP/1.1 200
+Host: 127.0.0.1:8001
+Connection: close
+X-Powered-By: PHP/8.5.11
+Cache-Control: no-cache, private
+Date: Mon, 09 Nov 2026 14:10:02 GMT
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+
+{
+  "success": true,
+  "message": "Pengembalian buku 'Bumi Manusia (Edisi Kritis Lengkap)' berhasil diproses.",
+  "data": {
+    "id": 14,
+    "kode_pinjam": "PJM-20261109-ZBP85J",
+    "status": "dikembalikan",
+    "tanggal_pinjam": "2026-11-09",
+    "jatuh_tempo": "2026-11-16",
+    "tanggal_kembali": "2026-11-09",
+    "perpanjangan": 0,
+    "hari_terlambat": 0,
+    "denda": 0,
+    "denda_lunas": true,
+    "buku": {
+      "id": 29,
+      "isbn": "9786026706339",
+      "judul": "Bumi Manusia (Edisi Kritis Lengkap)",
+      "penulis": "Pramoedya Ananta Toer",
+      "kategori": "Pemrograman Web & Arsitektur Perangkat Lunak"
+    },
+    "peminjam": {
+      "nim": "12S24099",
+      "nama": "Budi Santoso"
+    },
+    "created_at": "2026-11-09T14:10:02+00:00",
+    "_links": {
+      "self": {
+        "href": "http://127.0.0.1:8001/api/v1/peminjamans/14",
+        "method": "GET"
+      },
+      "buku": {
+        "href": "http://127.0.0.1:8001/api/v1/bukus/29",
+        "method": "GET"
+      }
+    }
+  }
+}
