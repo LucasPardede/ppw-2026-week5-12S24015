@@ -17,10 +17,11 @@ Route::prefix('v1')->group(function () {
     });
 
     // ==========================================
-    // 2. KATALOG BUKU (Publik Read)
+    // 2. KATALOG BUKU & REFERENSI (Publik Read)
     // ==========================================
     Route::get('/bukus', [BukuApiController::class, 'index']);
     Route::get('/bukus/{id}', [BukuApiController::class, 'show'])->whereNumber('id');
+    Route::get('/bukus/{id}/referensi-eksternal', [BukuApiController::class, 'referensiEksternal'])->whereNumber('id');
 
     // ==========================================
     // 3. MUTASI KATALOG BUKU & SIRKULASI (Admin Only)

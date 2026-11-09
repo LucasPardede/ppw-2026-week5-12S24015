@@ -253,4 +253,134 @@ class BukuApiController extends Controller
 
         return $this->noContentResponse();
     }
+
+    /**
+     * GET /api/v1/bukus/{id}/referensi-eksternal (Publik)
+     * Mengambil metadata buku tambahan dari OpenLibrary REST API via Laravel Http Client.
+     */
+    public function referensiEksternal(string $id): JsonResponse
+    {
+        $buku = Buku::find($id);
+
+        if (!$buku) {
+            return $this->problemResponse(
+                title: 'Resource Not Found',
+                detail: "Buku lokal dengan ID '{$id}' tidak ditemukan.",
+                status: 404,
+                errorSlug: 'book-not-found'
+            );
+        }
+
+        $cleanIsbn = preg_replace('/[^0-9X]/i', '', (string) $buku->isbn);
+        $cacheKey = "buku:referensi:{$cleanIsbn}";
+
+        if ($cached = \Illuminate\Support\Facades\Cache::get($cacheKey)) {
+            return $this->successResponse(
+                data: $cached,
+                message: 'Data referensi buku eksternal berhasil diambil dari OpenLibrary (cache).'
+            );
+        }
+
+        $baseUrl = config('services.openlibrary.base_url', 'https://openlibrary.org');
+        $timeout = (int) config('services.openlibrary.timeout', 8);
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout($timeout)
+                ->acceptJson()
+                ->withUserAgent('SIPUS-Del/1.0 (tugas PPW Institut Teknologi Del)')
+                ->get("{$baseUrl}/api/books", [
+                    'bibkeys' => "ISBN:{$cleanIsbn}",
+                    'format' => 'json',
+                    'jscmd' => 'data',
+                ]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return $this->problemResponse(
+                title: 'Gateway Timeout',
+                detail: 'Batas waktu komunikasi dengan layanan OpenLibrary telah habis (timeout).',
+                status: 504,
+                errorSlug: 'external-service-timeout'
+            );
+        } catch (\Throwable $e) {
+            return $this->problemResponse(
+                title: 'Bad Gateway',
+                detail: 'Gagal terhubung ke layanan eksternal OpenLibrary.',
+                status: 502,
+                errorSlug: 'external-service-failed'
+            );
+        }
+
+        // Tangani jika upstream mengembalikan kode status gagal (5xx, 4xx)
+        if ($response->status() === 404) {
+            return $this->problemResponse(
+                title: 'Resource Not Found',
+                detail: "Data referensi eksternal untuk ISBN '{$buku->isbn}' tidak ditemukan pada layanan OpenLibrary.",
+                status: 404,
+                errorSlug: 'external-book-not-found'
+            );
+        }
+
+        if ($response->failed()) {
+            return $this->problemResponse(
+                title: 'Bad Gateway',
+                detail: 'Layanan eksternal OpenLibrary merespons dengan kesalahan.',
+                status: 502,
+                errorSlug: 'external-service-error'
+            );
+        }
+
+        $body = $response->json();
+        $bibKey = "ISBN:{$cleanIsbn}";
+
+        if (empty($body) || !isset($body[$bibKey])) {
+            return $this->problemResponse(
+                title: 'Resource Not Found',
+                detail: "Data referensi eksternal untuk ISBN '{$buku->isbn}' tidak ditemukan pada katalog OpenLibrary.",
+                status: 404,
+                errorSlug: 'external-book-not-found'
+            );
+        }
+
+        $ext = $body[$bibKey];
+
+        // Pemetaan defensif atribut
+        $penerbit = null;
+        if (!empty($ext['publishers'])) {
+            $penerbit = is_array($ext['publishers'][0])
+                ? ($ext['publishers'][0]['name'] ?? null)
+                : (string) $ext['publishers'][0];
+        }
+
+        $urlBuku = $ext['url'] ?? null;
+        if (!$urlBuku && !empty($ext['ebooks'][0]['preview_url'])) {
+            $urlBuku = $ext['ebooks'][0]['preview_url'];
+        }
+
+        $referensiEksternal = [
+            'judul_eksternal' => $ext['title'] ?? null,
+            'penerbit' => $penerbit,
+            'jumlah_halaman' => isset($ext['number_of_pages']) ? (int) $ext['number_of_pages'] : null,
+            'tanggal_terbit' => $ext['publish_date'] ?? null,
+            'url_pratinjau' => $urlBuku,
+            'sumber' => 'OpenLibrary',
+        ];
+
+        $payload = [
+            'buku_lokal' => [
+                'id' => $buku->id,
+                'isbn' => $buku->isbn,
+                'judul' => $buku->judul,
+                'penulis' => $buku->penulis,
+                'stok' => (int) $buku->stok,
+            ],
+            'referensi_eksternal' => $referensiEksternal,
+        ];
+
+        // Simpan hanya hasil sukses ke cache selama 1 jam
+        \Illuminate\Support\Facades\Cache::put($cacheKey, $payload, 3600);
+
+        return $this->successResponse(
+            data: $payload,
+            message: 'Data referensi buku eksternal berhasil diambil dari OpenLibrary.'
+        );
+    }
 }
