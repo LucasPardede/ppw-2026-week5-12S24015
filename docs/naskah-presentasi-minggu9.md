@@ -146,3 +146,4 @@
 | **Apa fungsi standar RFC 7807?** | RFC 7807 menetapkan format respons galat HTTP JSON yang seragam (`application/problem+json`). Klien tidak perlu menebak-nebak format pesan error karena selalu memiliki atribut baku: `type`, `title`, `status`, `detail`, `instance`, dan rincian validasi per-kolom pada `errors`. |
 | **Kenapa WSDL penting pada SOAP?** | WSDL adalah kontrak formal mesin-ke-mesin (*machine-readable contract*). Klien SOAP dapat meng-generate stub/client secara otomatis berdasarkan skema tipe data XSD dan operasi yang tercantum pada WSDL tanpa perlu koordinasi manual. |
 | **Kenapa GET bukus bebas dari masalah N+1?** | Karena kami menggunakan *eager loading* `with('kategori')` yang menggabungkan pembacaan kategori dalam 1 kueri `WHERE IN`, serta `withCount('peminjamans')` yang menghitung relasi peminjaman langsung di level SQL agregasi tanpa kueri berulang per baris. |
+
