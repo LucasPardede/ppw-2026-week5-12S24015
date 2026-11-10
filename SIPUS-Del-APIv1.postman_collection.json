@@ -304,44 +304,6 @@
               }
             }
           ]
-        },
-        {
-          "name": "3. Logout Pustakawan (POST /auth/logout)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/auth/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Logout message success', function () { pm.expect(pm.response.json().success).to.be.true; });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
         }
       ]
     },
@@ -876,13 +838,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/bukus/1/referensi-eksternal",
+              "raw": "{{base_url}}/bukus/2/referensi-eksternal",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "bukus",
-                "1",
+                "2",
                 "referensi-eksternal"
               ]
             }
@@ -1203,7 +1165,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"buku_id\": 2, \"nim_peminjam\": \"12S24099\", \"nama_peminjam\": \"Mahasiswa Uji\", \"durasi_hari\": 7}"
+              "raw": "{\"buku_id\": 21, \"nim_peminjam\": \"12S24099\", \"nama_peminjam\": \"Mahasiswa Uji\", \"durasi_hari\": 7}"
             },
             "url": {
               "raw": "{{base_url}}/peminjamans",
@@ -1267,6 +1229,49 @@
                 "exec": [
                   "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
                   "pm.test('Content-Type is problem+json', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Logout / Revoke Token (Cleanup)",
+      "item": [
+        {
+          "name": "3. Logout Pustakawan (POST /auth/logout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Logout message success', function () { pm.expect(pm.response.json().success).to.be.true; });"
                 ],
                 "type": "text/javascript"
               }
