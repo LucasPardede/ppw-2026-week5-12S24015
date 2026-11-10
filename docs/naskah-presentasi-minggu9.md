@@ -8,12 +8,18 @@
 
 ## Petunjuk Persiapan Sebelum Presentasi (Checklist 2 Menit)
 
-1. **Jalankan Server Lokal:** Buka terminal dan ketik `php artisan serve`. Biarkan terminal tetap berjalan.
-2. **Buka Aplikasi Postman Desktop:** Buka koleksi `SIPUS-Del Web Services & REST API v1`.
-3. **Buka Browser / Dokumen Pendukung:**
-   * Swagger / OpenAPI Viewer: `docs/openapi-sipus-v1.yaml`
-   * Laporan Praktikum PDF: `docs/Laporan_Praktikum_Minggu_9_12S24015_Lucas_Pardede.pdf`
-   * Terminal pengujian untuk mendemokan `php artisan test`.
+1. **Jalankan Server Lokal:** Buka terminal PowerShell dan jalankan:
+   ```powershell
+   php artisan serve
+   ```
+   *(Biarkan terminal ini tetap menyala selama presentasi).*
+2. **Buka Aplikasi Postman Desktop:**
+   * Pastikan berkas koleksi terbaru `SIPUS-Del-APIv1.postman_collection.json` sudah diimpor.
+   * Total terdapat **7 Folder Terstruktur** dengan **57 automated test assertions**.
+3. **Buka Dokumen Pendukung:**
+   * Spesifikasi OpenAPI 3.0: `docs/openapi-sipus-v1.yaml`
+   * Laporan Praktikum PDF (9 Halaman): `docs/Laporan_Praktikum_Minggu_9_12S24015_Lucas_Pardede.pdf`
+   * Terminal cadangan untuk mendemokan `php artisan test` (96 tests 100% green).
 
 ---
 
@@ -27,13 +33,13 @@
 >
 > *Pada kesempatan kali ini, saya akan mempresentasikan dan mendemonstrasikan hasil pengerjaan Tugas Mandiri Praktikum Minggu 9 mata kuliah Pemrograman dan Pengujian Web dengan judul: **'SIPUS-Del Tahap 3: Arsitektur Web Services Terdistribusi, Layanan SOAP Ringkas (WSDL & SOAP Fault), serta RESTful Web API v1 (Provider & Consumer)'**.*
 >
-> *Seluruh pekerjaan telah selesai 100% dan telah di-push secara rapi ke repositori GitHub pada branch **`week9-rest-api`** dengan total **96 Automated Tests lulus tanpa kegagalan (100% Green)**."*
+> *Seluruh pekerjaan telah selesai 100% dan telah di-push secara rapi ke repositori GitHub pada branch **`week9-rest-api`** dengan total **96 Automated Tests di PHPUnit 12 lulus tanpa kegagalan (100% Green)** dan **57 Test Assertions di Postman Collection Runner lulus sempurna (Passed: 57, Failed: 0)**."*
 
 ---
 
 ### 2. Latar Belakang & Analisis Arsitektur (Durasi: ~1.5 Menit)
 
-> *"Bapak dan rekan-rekan asisten, pada Minggu 5 dan 6 sebelumnya, SIPUS-Del dibangun sebagai sistem web monolitik berbasis Blade HTML. Namun, dalam ekosistem kampus nyata, perpustakaan dituntut untuk terhubung dengan sistem lain, seperti aplikasi mobile mahasiswa, kios peminjaman mandiri, dan sistem yudisium BAAK.*
+> *"Bapak Dosen dan rekan-rekan asisten, pada Minggu 5 dan 6 sebelumnya, SIPUS-Del dibangun sebagai sistem web monolitik berbasis Blade HTML. Namun, dalam ekosistem kampus nyata, perpustakaan dituntut untuk terhubung dengan sistem lain, seperti aplikasi mobile mahasiswa, kios peminjaman mandiri, dan sistem yudisium BAAK.*
 >
 > *Oleh karena itu, pada Minggu 9 ini, SIPUS-Del kami kembangkan memiliki peran ganda:*
 > 1. ***Sebagai Web Service Provider:***
@@ -55,11 +61,11 @@
 > *1. Pertama, kontrak formal WSDL dapat diakses publik pada `GET /soap/sipus.wsdl`. Dokumen WSDL 1.1 ini mendefinisikan types, message, portType, dan binding secara valid.*
 >
 > *2. Kedua, kami menjalankan operasi `CheckClearanceStatus` melalui `POST /soap/sipus`.*
-> *(Klik **Send** pada request '2. Check Clearance (Sukses - Bebas Pinjaman)')*
+> *(Klik **Send** pada request '2. Check Clearance Status - Sukses')*
 > *Bisa kita lihat responnya berformat `<soap:Envelope>` standar. Nilai `active_loans` adalah 0 dan tag `is_cleared` bernilai `true`.*
 >
 > *3. Bagaimana jika NIM mahasiswa tidak terdaftar di database atau XML yang dikirim cacat?*
-> *(Klik **Send** pada request '3. Fault - NIM Tidak Terdaftar')*
+> *(Klik **Send** pada request '3. Check Clearance Status - NIM Tidak Terdaftar')*
 > *Sistem kami tidak mengembalikan error sembarangan atau 200 palsu, melainkan mengembalikan standar **HTTP 500 dengan `<soap:Fault>`** (`faultcode: soap:Client`), sesuai spesifikasi modul praktikum."*
 
 ---
@@ -72,13 +78,13 @@
 >
 > *1. **Otentikasi Stateless:** Pustakawan melakukan login melalui `POST /api/v1/auth/login`.*
 > *(Klik **Send** pada '1. Login Pustakawan')*
-> *Server memverifikasi hash password dan mengembalikan Bearer Token Sanctum. Skrip Postman otomatis menyimpan token ini ke variabel koleksi `{{bearer_token}}`.*
+> *Server memverifikasi hash password dan mengembalikan Bearer Token Sanctum. Skrip Postman otomatis menyimpan token ini ke variabel koleksi `{{token}}`.*
 >
 > *2. **Isolasi Hak Akses (Role Separation):** Apa yang terjadi jika mahasiswa mencoba login ke API pustakawan?*
-> *(Klik **Send** pada '2. Login Mahasiswa Ditolak')*
+> *(Buka Folder 6, klik **Send** pada '2. 403 Forbidden - Login Mahasiswa Ditolak')*
 > *Sistem menolak dengan **HTTP 403 Forbidden**. Seluruh galat API kami konsisten mengadopsi standar internasional **RFC 7807 (`application/problem+json`)** yang memuat 5 atribut wajib: type, title, status, detail, dan instance.*
 >
-> *3. **Pencabutan Token (Logout):** Saat pustakawan memanggil `POST /api/v1/auth/logout`, sistem hanya menghapus token yang sedang aktif tanpa mengganggu login pustakawan dari perangkat lain."*
+> *3. **Pencabutan Token (Logout):** Operasi logout kami tempatkan di folder 7 sebagai tahapan cleanup akhir, sehingga saat dipanggil, sistem mencabut token aktif secara aman tanpa mengganggu sesi perangkat lain."*
 
 ---
 
@@ -94,15 +100,15 @@
 > *Jika stok buku masih tersedia (`stok > 0`), muncul tautan aksi `"pinjam_buku"`. Namun jika stok habis (`stok = 0`), tautan pinjam tersebut otomatis dihilangkan oleh `BukuResource`.*
 >
 > *3. **Semantik HTTP Status Codes:**
-> * Saat pustakawan menambah buku (`POST /api/v1/bukus`), responnya adalah **`201 Created`** lengkap dengan header standar **`Location`** yang mengarah ke URI buku baru.*
-> * Kami membuktikan perbedaan nyata antara **PUT** dan **PATCH**: `PUT` bersifat *full replacement* (menimpa seluruh entitas), sedangkan `PATCH` bersifat *partial update* (hanya mengubah stok atau sinopsis tanpa merusak data lain).*
-> * Saat menghapus buku (`DELETE`), sistem mengembalikan **`204 No Content`** jika bersih, dan menolak dengan **`409 Conflict`** jika buku masih memiliki relasi peminjaman aktif guna mencegah error integritas foreign key."*
+> * Saat pustakawan menambah buku (`POST /api/v1/bukus`), responnya adalah **`201 Created`** lengkap dengan header standar **`Location`** yang mengarah ke URI buku baru. ID buku baru tersebut otomatis disimpan ke variabel `{{buku_id}}`.*
+> * Kami membuktikan perbedaan nyata antara **PUT** dan **PATCH**: `PUT` bersifat *full replacement* (menimpa seluruh entitas dan me-reset kolom yang tidak dikirim), sedangkan `PATCH` bersifat *partial update* (hanya mengubah stok atau sinopsis).*
+> * Saat menghapus buku (`DELETE`), sistem mengembalikan **`204 No Content`** jika bersih, dan menolak dengan **`409 Conflict`** jika buku masih memiliki relasi peminjaman aktif."*
 
 ---
 
 ### 6. Demonstrasi Fitur 4: Transaksi Sirkulasi ACID & Concurrency Control (Durasi: ~2 Menit)
 
-*(Buka Postman folder: `4. Sirkulasi Peminjaman (ACID)`)*
+*(Buka Postman folder: `4. Sirkulasi Peminjaman (ACID)` dan `6. Skenario Negatif`)*
 
 > *"Fitur paling kritis pada praktikum ini adalah transaksi sirkulasi peminjaman:*
 >
@@ -110,30 +116,37 @@
 >
 > *2. Validasi bisnis ketat ditegakkan:*
 > *(Buka folder 6. Skenario Negatif)*
-> * *Jika buku dipinjam saat stok habis $\rightarrow$ sistem membatalkan transaksi dan mengembalikan **HTTP 422 Unprocessable Content**.*
-> * *Jika mahasiswa mencoba meminjam judul buku yang sama dua kali $\rightarrow$ sistem menolak dengan **HTTP 409 Conflict**.*
-> * *Jika mahasiswa memiliki pinjaman terlambat atau denda belum lunas $\rightarrow$ sistem menolak dengan **HTTP 409 Conflict**.*
+> * *Jika buku dipinjam saat stok habis (Buku 21) $\rightarrow$ sistem membatalkan transaksi dan mengembalikan **HTTP 422 Unprocessable Content**.*
+> * *Jika mahasiswa mencoba meminjam judul buku yang sama dua kali atau memiliki pinjaman terlambat $\rightarrow$ sistem menolak dengan **HTTP 409 Conflict**.*
 >
-> *3. Pada saat pengembalian (`PATCH /api/v1/peminjamans/{id}/kembalikan`), stok buku otomatis bertambah kembali (+1) dan denda keterlambatan dihitung secara dinamis sesuai selisih hari jatuh tempo."*
+> *3. Pada saat pengembalian (`PATCH /api/v1/peminjamans/{{peminjaman_id}}/kembalikan`), stok buku otomatis bertambah kembali (+1) dan denda keterlambatan dihitung secara dinamis sesuai selisih hari jatuh tempo."*
 
 ---
 
-### 7. Demonstrasi Fitur 5: Konsumer Eksternal & Verifikasi Test (Durasi: ~1.5 Menit)
+### 7. Demonstrasi Fitur 5: Konsumer Eksternal & Collection Runner (Durasi: ~2 Menit)
 
 *(Buka Postman folder: `5. Konsumer Eksternal OpenLibrary`)*
 
-> *"1. Untuk fitur konsumer, endpoint `GET /api/v1/bukus/1/referensi-eksternal` memanggil OpenLibrary Books API menggunakan facade `Http::timeout(3)`. Data eksternal seperti jumlah halaman, penerbit asli, dan tautan cover kami simpan di dalam cache memori selama 1 jam. Jika terjadi gangguan jaringan, sistem memiliki fallback aman berupa HTTP 504 Gateway Timeout tanpa membuat aplikasi crash.*
+> *"1. Untuk fitur konsumer, endpoint `GET /api/v1/bukus/2/referensi-eksternal` memanggil OpenLibrary Books API menggunakan facade `Http::timeout(3)`. Metadata buku Clean Code (jumlah halaman: 431, penerbit: Prentice Hall) diambil dan disimpan di cache memori selama 1 jam. Jika terjadi gangguan jaringan, sistem memiliki fallback aman berupa HTTP 504 Gateway Timeout tanpa membuat aplikasi crash.*
 >
-> *2. Terakhir, seluruh arsitektur ini telah diverifikasi melalui **Automated Test Suite**. Saya akan menjalankan perintah `php artisan test` di terminal:"*
+> *2. Sekarang saya akan mendemonstrasikan pengujian otomatis seluruh koleksi menggunakan **Postman Collection Runner**:"*
+
+*(Klik titik tiga `...` pada koleksi $\rightarrow$ Klik **Run collection** $\rightarrow$ Klik tombol biru **Run SIPUS-Del Web Services...**)*
+
+> *"Bisa kita saksikan di layar Postman Runner:*
+> * **All 57 Tests: Passed 57, Failed 0 (100% HIJAU SEMPURNA).**
+> * Seluruh skenario normal, mutasi data, proteksi token, hingga penolakan skenario negatif berhasil terverifikasi otomatis dalam durasi kurang dari 10 detik!*
+>
+> *3. Selain di Postman, di level framework Laravel kami juga memiliki **Automated Test Suite**. Mari kita jalankan di terminal: `php artisan test`:"*
 
 *(Jalankan `php artisan test` di terminal)*
 
-> *"Seperti yang terlihat di layar terminal:*
+> *"Hasilnya:*
 > * **96 Tests lolos 100% (436 Assertions terpenuhi).**
-> * Tidak ada satupun test lama dari Minggu 5 dan 6 yang rusak (Zero Regression).*
-> * Dokumentasi formal OpenAPI 3.0 (`openapi-sipus-v1.yaml`), koleksi Postman, serta **Laporan Praktikum Resmi dalam bentuk PDF 9 Halaman** telah tersedia rapi di dalam folder `docs/`.*
+> * Seluruh pengujian web minggu 5 dan 6 tetap hijau tanpa regresi.*
+> * Dokumentasi kontrak formal OpenAPI 3.0 (`openapi-sipus-v1.yaml`) serta **Laporan Praktikum Resmi PDF 9 Halaman** telah tersimpan lengkap di dalam repositori.*
 >
-> *Demikian presentasi dari saya. Terima kasih banyak atas perhatian Bapak Dosen dan rekan-rekan asisten. Saya siap menjawab pertanyaan."*
+> *Demikian presentasi dari saya. Terima kasih banyak atas perhatian Bapak Chandro Pardede dan rekan-rekan asisten. Saya siap menjawab pertanyaan."*
 
 ---
 
@@ -146,4 +159,4 @@
 | **Apa fungsi standar RFC 7807?** | RFC 7807 menetapkan format respons galat HTTP JSON yang seragam (`application/problem+json`). Klien tidak perlu menebak-nebak format pesan error karena selalu memiliki atribut baku: `type`, `title`, `status`, `detail`, `instance`, dan rincian validasi per-kolom pada `errors`. |
 | **Kenapa WSDL penting pada SOAP?** | WSDL adalah kontrak formal mesin-ke-mesin (*machine-readable contract*). Klien SOAP dapat meng-generate stub/client secara otomatis berdasarkan skema tipe data XSD dan operasi yang tercantum pada WSDL tanpa perlu koordinasi manual. |
 | **Kenapa GET bukus bebas dari masalah N+1?** | Karena kami menggunakan *eager loading* `with('kategori')` yang menggabungkan pembacaan kategori dalam 1 kueri `WHERE IN`, serta `withCount('peminjamans')` yang menghitung relasi peminjaman langsung di level SQL agregasi tanpa kueri berulang per baris. |
-
+| **Kenapa respon peminjaman ganda dan terlambat sama-sama 409?** | Sesuai semantik HTTP REST dan Keputusan Desain #5, HTTP 409 (Conflict) digunakan saat permintaan tidak dapat diproses karena konflik dengan kondisi state data saat ini di server (apakah buku sedang dipinjam oleh orang yang sama, atau mahasiswa masih memiliki pinjaman yang menunggak). |
