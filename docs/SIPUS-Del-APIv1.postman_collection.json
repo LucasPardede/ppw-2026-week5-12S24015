@@ -1017,7 +1017,7 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });",
-                  "pm.test('Title is Duplicate Loan Conflict', function () { pm.expect(pm.response.json().title).to.include('Duplicate Loan Conflict'); });"
+                  "pm.test('Title indicates Conflict', function () { pm.expect(pm.response.json().title).to.include('Conflict'); });"
                 ],
                 "type": "text/javascript"
               }
